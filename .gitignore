@@ -1,0 +1,80 @@
+# Python specific ignores
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+dist/
+eggs/
+.eggs/
+sdist/
+wheelhouse/
+pip-wheel-metadata/
+develop-eggs/
+MANIFEST
+MANIFEST.in
+*.egg-info/
+.installed.cfg
+*.whl
+venv/
+env/
+ENV/
+.venv/
+
+# PyInstaller related
+*.spec
+build
+
+# Jupyter Notebook related
+.ipynb_checkpoints
+
+# Poetry related
+poetry.lock
+.venv
+
+# mypy cache
+.mypy_cache/
+
+# Flake8 cache
+.flake8
+
+# pytest cache
+.pytest_cache/
+coverage.xml
+.coverage
+htmlcov/
+.tox/
+
+# Django related
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+media/  # 如果您的媒體檔案不需要版本控制
+
+# Flask related
+instance/
+*.pyc
+__pycache__/
+*.sqlite
+
+# Other common ignores
+# OS generated files - do not change these
+.DS_Store
+Thumbs.db
+
+# Editor/IDE related
+.idea/
+.vscode/
+*.swp
+*.swo
+.env
