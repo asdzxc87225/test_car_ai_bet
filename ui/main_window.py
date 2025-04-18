@@ -31,10 +31,12 @@ class MainWindow(QMainWindow):
 
     def save_data(self):
         data = self.input_panel.get_input_data()
+        self.input_panel.next_round()
         self.data_manager.append(
             round_num=data["round"],
             bet=data["bets"],
             winner=data["winner"]
         )
+        self.display_panel.update_from_log_file(self.config)
         self.display_panel.append_text(f"資料已儲存：{data}")
 
