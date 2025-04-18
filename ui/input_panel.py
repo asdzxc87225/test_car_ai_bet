@@ -11,7 +11,7 @@ class InputPanel(QWidget):
         self.config = config
         self.bets = []
         self.car_names = list(config["bet_vector"]["cars"].values())
-        self.current_step = 1  # 初始下注單位為 1
+        self.current_step = 20  # 初始下注單位為 1
 
         main_layout = QVBoxLayout()
         bet_layout = QHBoxLayout()
@@ -30,9 +30,6 @@ class InputPanel(QWidget):
         # 控制下注單位的按鈕與勝出選擇
         control_layout = QHBoxLayout()
         button_layout = QHBoxLayout()
-        self.car_selector = QComboBox()
-        for name in self.car_names:
-            self.car_selector.addItem(name)
 
         # 建立「設定下注單位」的按鈕
         for amount in [20, 100, 500, 1000, 5000]:
@@ -41,15 +38,14 @@ class InputPanel(QWidget):
             button_layout.addWidget(btn)
 
         # 勝出車輛選擇器
+
         winner_layout = QVBoxLayout()
         winner_layout.addWidget(QLabel("勝出的車"))
         self.winner_selector = QComboBox()
         for name in self.car_names:
             self.winner_selector.addItem(name)
         winner_layout.addWidget(self.winner_selector)
-
         control_layout.addLayout(button_layout)
-        control_layout.addWidget(self.car_selector)
         control_layout.addLayout(winner_layout)
 
         # 組合 layout
