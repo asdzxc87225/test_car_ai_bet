@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime
 import ast
 from .config_loader import  load_config
+import os
 
 config = load_config()
 DATA_FILE = Path(config["data_file"])
@@ -11,6 +12,7 @@ COLUMNS = config["columns"]
 class DataManager:
     def __init__(self):
         self.columns = COLUMNS
+        self.file_path = DATA_FILE
         self._ensure_file()
 
     def _ensure_file(self):
@@ -33,4 +35,13 @@ class DataManager:
     def read(self):
         df = pd.read_csv(DATA_FILE, converters={"bet": ast.literal_eval})
         return df
+    def get_next_round(self):
+        if os.path.exists(self.file_path):
+            try:
+                df = pd.read_csv(self.file_path)
+                if "round" in df.columns and not df.empty:
+                    return int(df["round"].iloc[-1]) + 1
+            except Exception as e:
+                print("❗讀取回合數失敗：", e)
+        return 1
 

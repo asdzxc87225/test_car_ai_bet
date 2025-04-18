@@ -14,7 +14,7 @@ class MainWindow(QMainWindow):
         self.config = load_config()
         self.input_panel = InputPanel(self.config)
         self.ai_control = Ai_Control()
-        self.display_panel = DisplayPanel()
+        self.display_panel = DisplayPanel(self.config)
 
         save_button = QPushButton("儲存資料")
         save_button.clicked.connect(self.save_data)
@@ -37,6 +37,6 @@ class MainWindow(QMainWindow):
             bet=data["bets"],
             winner=data["winner"]
         )
-        self.display_panel.update_from_log_file(self.config)
+        self.display_panel.update_stats_display()
         self.display_panel.append_text(f"資料已儲存：{data}")
 
