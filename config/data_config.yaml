@@ -25,3 +25,12 @@ columns:
   - bet
   - winner
 
+car_type:
+  small_cars: [0, 1, 2, 3]  # 根據車輛編號來定義小車的車輛
+  large_cars: [4, 5, 6, 7]  # 大車的車輛編號
+
+q_learning_params:
+  epsilon: 0.9  # 探索的機率
+  alpha: 0.1    # 學習率
+  gamma: 0.9    # 折扣因子
+  actions: [0, 1]  # 動作：0 代表不下注, 1 代表下注
