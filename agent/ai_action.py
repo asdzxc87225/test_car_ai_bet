@@ -9,9 +9,7 @@ ACTION_MAP: dict[Hashable, int] = {
     0: 0, 1: 1,               # 已是整數的仍可映射
     "押小車": 1,
     "押大車": 0,
-}
-
-
+    }
 
 # ---------- 工具：由 Q 值決定最佳動作 ----------
 def _to_int_action(label: Hashable) -> int:
