@@ -65,7 +65,6 @@ class AIPredictor:
             raise ValueError("game_log.csv 少於 5 筆資料")
 
         last5 = df.tail(5)
-        print(last5)
         wine_type, diff, rsum = map(int,
                                     last5.iloc[-1][["wine_type",
                                                     "diff",
