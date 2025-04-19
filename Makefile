@@ -19,6 +19,7 @@ help:
 	@echo " make clean      ▶ 清理訓練中間檔案"
 	@echo " make merge      ▶ 合併資料檔案"
 	@echo " make train      ▶ 訓練檔案"
+	@echo " make eval       ▶ 測試權重"
 	@echo ""
 
 # 📦 單元測試（tests/）
@@ -46,4 +47,6 @@ merge:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  scripts/merge_split_data.py
 train:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  scripts/q_train_legacy.py
+eval:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/evaluate_q_table.py
 
