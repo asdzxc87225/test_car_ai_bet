@@ -1,24 +1,42 @@
 # agent/ai_action.py
 from pathlib import Path
+from typing import Any, Hashable
 from datetime import datetime
 import pandas as pd, pickle, logging
 
 SMALL_CARS = {0, 1, 2, 3}
+ACTION_MAP: dict[Hashable, int] = {
+    0: 0, 1: 1,               # 已是整數的仍可映射
+    "押小車": 1,
+    "押大車": 0,
+}
+
 
 
 # ---------- 工具：由 Q 值決定最佳動作 ----------
+def _to_int_action(label: Hashable) -> int:
+    """
+    將 idxmax() 得到的欄名 label 轉成整數動作 id
+    若無法對應 → 拋 TypeError
+    """
+    if isinstance(label, int):
+        return label
+    if label in ACTION_MAP:
+        return ACTION_MAP[label]
+    raise TypeError(f"動作欄名 {label!r} 無法轉成整數 id，請更新 ACTION_MAP")
+
 def _action_by_row_max(df: pd.DataFrame | pd.Series) -> int:
     """
-    • Series → 直接 idxmax()
-    • DataFrame → 每列 idxmax() 後 value_counts() 投票
-    回傳純 int
+    • Series  → 直接 idxmax()，再轉整數
+    • DataFrame → 每列 idxmax() → value_counts() 投票 → 轉整數
     """
     if isinstance(df, pd.Series):
-        return int(df.idxmax())
+        best = df.idxmax()
+        return _to_int_action(best)
 
     votes = df.apply(lambda row: row.idxmax(), axis=1)
-    return int(votes.value_counts().idxmax())
-
+    best = votes.value_counts().idxmax()
+    return _to_int_action(best)
 
 class AIPredictor:
     """載模型 → 準備特徵 → 預測 → 追加真實 winner"""
@@ -94,7 +112,8 @@ class AIPredictor:
 
     def _safe_slice(self, diff: int, rsum: int):
         """根據層級切 slice；若不存在回 None"""
-
+        if self.q_table is None or self.q_table.index is None:
+            raise RuntimeError("請先 load_model()，且模型必須有索引")
         try:
             # --- 三層 (wine, diff, rsum) ----------------
             if self.q_table.index.nlevels == 3:
