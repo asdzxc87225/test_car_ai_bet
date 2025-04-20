@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton
 from ui.input_panel import InputPanel
 from ui.ai_control import Ai_Control
 from ui.display_panel import DisplayPanel
+from ui.hotkey_manager import register_hotkeys
 
 from data.config_loader import load_config
 from data.data_manager import DataManager
@@ -17,6 +18,9 @@ class MainWindow(QMainWindow):
         self.input_panel = InputPanel(self.config)#下注界面
         self.ai_control = Ai_Control()#Ai控制界面
         self.display_panel = DisplayPanel(self.config)#資料顯示界面
+        register_hotkeys(self, {
+            "submit": self.save_data,
+        })
 
         save_button = QPushButton("儲存資料")
         save_button.clicked.connect(self.save_data)

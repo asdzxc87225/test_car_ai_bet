@@ -4,6 +4,8 @@ from PySide6.QtWidgets import (
     QPushButton, QComboBox
 )
 from PySide6.QtCore import QDateTime
+from ui.hotkey_manager import register_hotkeys
+
 
 
 class InputPanel(QWidget):
@@ -21,6 +23,12 @@ class InputPanel(QWidget):
         self.winner_selector = QComboBox()
 
         self.setup_ui()
+        register_hotkeys(self, {
+            "increase": self.increase_bet,
+            "decrease": self.decrease_bet,
+            "clear": self.clear_bets,
+        })
+
 
     def setup_ui(self):
         main_layout = QVBoxLayout()
@@ -86,4 +94,17 @@ class InputPanel(QWidget):
             "bets": bets,
             "winner": winner_index
         }
+    def increase_bet(self, index):
+        if 0 <= index < len(self.bets):
+            self.bets[index].setValue(self.bets[index].value() + self.current_step)
+
+    def decrease_bet(self, index):
+        if 0 <= index < len(self.bets):
+            self.bets[index].setValue(max(0, self.bets[index].value() - self.current_step))
+
+    def clear_bets(self):
+        for spin in self.bets:
+            spin.setValue(0)
+        print("🧹 已清除所有下注")
+
 

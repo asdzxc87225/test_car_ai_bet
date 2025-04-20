@@ -4,6 +4,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout, QVBoxLayout, QMessageBox, QInputDialog
 )
 from agent.ai_action import AIPredictor
+from ui.hotkey_manager import register_hotkeys
 
 MODEL_DIR = Path(__file__).parent.parent / "data" / "models"
 DATA_DIR = Path(__file__).parent.parent / "data"
@@ -14,6 +15,9 @@ class Ai_Control(QWidget):
 
     def __init__(self):
         super().__init__()
+        register_hotkeys(self, {
+            "ai_run": self.on_predict,
+        })
         # ----------------- AI Agent -----------------
         self.agent = AIPredictor(DATA_DIR).load_model("104900.pkl")
 
