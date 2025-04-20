@@ -12,7 +12,7 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     df["wine_type"] = df["winner"].apply(lambda x: 1 if x in SMALL_CARS else 0)
 
     # 與上一局的差分
-    df["diff"] = df["wine_type"].diff().fillna(0).astype(int)
+    df["diff"] = df["wine_type"].diff().fillna(0).astype(int)+1
 
     # 近 5 局小車勝利數（不 shift）
     df["rolling_sum_5"] = (
