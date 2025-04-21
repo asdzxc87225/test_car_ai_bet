@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QLabel
+from ui.Analytics_page.behavior_tab import BehaviorTab
 # --- 各分頁占位元件 ---
 class QTableTab(QWidget):
     def __init__(self):
@@ -13,14 +14,6 @@ class TransitionTab(QWidget):
         super().__init__()
         layout = QVBoxLayout()
         layout.addWidget(QLabel("🔁 這裡是馬可夫鏈分析頁"))
-        self.setLayout(layout)
-
-
-class BehaviorTab(QWidget):
-    def __init__(self):
-        super().__init__()
-        layout = QVBoxLayout()
-        layout.addWidget(QLabel("🧠 這裡是玩家行為分析頁"))
         self.setLayout(layout)
 
 
