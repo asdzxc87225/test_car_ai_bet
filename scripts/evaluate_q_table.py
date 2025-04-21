@@ -4,7 +4,7 @@ import pickle
 from pathlib import Path
 
 ACTIONS = [0, 1]  # 0: 不下注, 1: 下注
-MODEL_PATH = Path("data/models/104900.pkl")
+MODEL_PATH = Path("data/models/107140.pkl")
 TEST_PATH = Path("data/train.csv")
 
 

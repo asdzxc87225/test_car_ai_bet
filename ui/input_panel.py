@@ -22,6 +22,7 @@ class InputPanel(QWidget):
         self.round_label = QLabel(f"🎯 目前回合數：{self.current_round}")
         self.winner_selector = QComboBox()
 
+
         self.setup_ui()
         register_hotkeys(self, {
             "increase": self.increase_bet,
@@ -36,6 +37,11 @@ class InputPanel(QWidget):
         main_layout.addLayout(self.create_bet_inputs())
         main_layout.addLayout(self.create_controls())
         self.setLayout(main_layout)
+            # 🔽 加上儲存按鈕
+        save_button = QPushButton("儲存資料")
+        save_button.clicked.connect(self.submit_bet)
+        main_layout.addWidget(save_button)
+
 
     def create_bet_inputs(self):
         layout = QHBoxLayout()
@@ -106,5 +112,17 @@ class InputPanel(QWidget):
         for spin in self.bets:
             spin.setValue(0)
         print("🧹 已清除所有下注")
+    def submit_bet(self):
+        """提交下注資料，儲存到 DataManager，並自動進入下一回合"""
+        data = self.get_input_data()
+        self.data_manager.append(
+            round_num=data["round"],
+            bet=data["bets"],
+            winner=data["winner"]
+        )
+        self.next_round()
+        print(f"✅ 資料已儲存：{data}")
+
+    
 
 
