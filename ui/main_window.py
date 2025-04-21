@@ -2,7 +2,6 @@ from PySide6.QtWidgets import (
     QMainWindow, 
     QTabWidget
 )
-
 from ui.betting_page import BettingPage
 from ui.analytics_page import AnalyticsPage
 from ui.training_page import TrainingPage
@@ -20,16 +19,4 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.tabs)
 
 
-        #排版設定
-
-        '''
-        layout = QVBoxLayout()
-        layout.addWidget(self.input_panel)
-        layout.addWidget(self.ai_control)
-        layout.addWidget(self.display_panel)
-
-        container = QWidget()
-        container.setLayout(layout)
-        self.setCentralWidget(container)
-        '''
 
