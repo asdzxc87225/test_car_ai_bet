@@ -54,4 +54,6 @@ gra:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/visualize_q_table.py
 mark:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/analyze_transition_matrix.py
+test2:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/test_BehaviorAnalyzer.py
 
