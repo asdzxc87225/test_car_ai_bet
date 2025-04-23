@@ -85,9 +85,11 @@ class BehaviorAnalyzer:
                     "profit": profit,
                     "is_win": is_win,
                     "roi": roi,
+                    "bet": row.get("bet"),  # 👈 必須補上！
                     "diff": row.get("diff"),
                     "rolling_sum_5": row.get("rolling_sum_5")
                 })
+           
 
             except Exception as e:
                 print(f"⚠️ 計算失敗 round={row.get('round', '?')} 錯誤：{e}")
