@@ -33,8 +33,16 @@ class TransitionTab(QWidget):
         action_layout = QHBoxLayout()
 
         self.btn_plot_matrix = QPushButton("顯示轉移矩陣")
+        self.btn_plot_freq = QPushButton("狀態出現頻率")
+        self.btn_plot_entropy = QPushButton("狀態熵分佈")
+
         self.btn_plot_matrix.clicked.connect(self.plot_placeholder_matrix)  # 🔹 測試用 callback
+        self.btn_plot_freq.clicked.connect(self.plot_placeholder_freq)
+        self.btn_plot_entropy.clicked.connect(self.plot_placeholder_entropy)
+
         action_layout.addWidget(self.btn_plot_matrix)
+        action_layout.addWidget(self.btn_plot_freq)
+        action_layout.addWidget(self.btn_plot_entropy)
 
         self.action_group.setLayout(action_layout)
 
@@ -63,6 +71,22 @@ class TransitionTab(QWidget):
         sns.heatmap(dummy_data, annot=True, fmt=".2f", ax=self.ax, cmap="YlGnBu")
         self.ax.set_title("測試熱圖 (假資料)")
         self.canvas.draw()
+    def plot_placeholder_freq(self):
+        import numpy as np
+        self.ax.clear()
+        values = np.random.randint(1, 100, size=10)
+        self.ax.bar(range(len(values)), values, color="skyblue")
+        self.ax.set_title(" 狀態出現頻率 (假資料)")
+        self.canvas.draw()
+
+    def plot_placeholder_entropy(self):
+        import numpy as np
+        self.ax.clear()
+        values = np.random.rand(10)
+        self.ax.plot(values, marker='o')
+        self.ax.set_title(" 狀態熵分佈 (假資料)")
+        self.canvas.draw()
+
 
 
 
