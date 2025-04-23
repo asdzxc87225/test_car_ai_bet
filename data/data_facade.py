@@ -2,6 +2,8 @@
 import os
 import pandas as pd
 from data.Analytics_page.feature_builder import build_features
+from data.transition_matrix_builder import build_transition_matrix
+
 class DataFacade:
     def __init__(self):
         # 設定資料位置（可日後讀設定檔）
@@ -19,8 +21,6 @@ class DataFacade:
         q_table = self.get_q_table()
         return q_table[action].unstack()
 
-    def get_transition_matrix(self) -> pd.DataFrame:
-        return pd.read_csv(self.paths["transition_matrix"], index_col=0)
 
     def list_models(self, dir_path="data/models") -> list[str]:
         return sorted([
@@ -37,4 +37,9 @@ class DataFacade:
         df = pd.read_csv(self.paths["game_log"])
         df = build_features(df)  # 👈 加上自動處理
         return df
+    def get_transition_matrix_from_log(self) -> pd.DataFrame:
+        """從 game_log.csv 建立狀態轉移矩陣"""
+        df = self.get_game_log()
+        matrix = build_transition_matrix(df)
+        return matrix 
 

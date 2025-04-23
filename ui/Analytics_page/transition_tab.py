@@ -5,21 +5,30 @@ from PySide6.QtWidgets import (
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
+from data.transition_analyzer import TransitionAnalyzer
+from data.transition_plotter import TransitionPlotter
+from data.data_facade import DataFacade
+from data.transition_matrix_builder import build_transition_matrix
+
 class TransitionTab(QWidget):
     def __init__(self):
         super().__init__()
+        self.data_center = DataFacade()
+        self.analyzer = None
+        self.plotter = TransitionPlotter()
 
         # 區塊一：資料控制區
         self.data_group = QGroupBox("資料設定")
         data_layout = QHBoxLayout()
 
         self.file_selector = QComboBox()
-        self.file_selector.addItem("transition_matrix.csv")  # 之後可擴充自動讀取
+        self.file_selector.addItem("game_log.csv")  # 之後可擴充自動讀取
         self.start_round = QSpinBox()
         self.end_round = QSpinBox()
         self.start_round.setPrefix("起始：")
         self.end_round.setPrefix("結束：")
         self.load_button = QPushButton("載入並分析")
+        self.load_button.clicked.connect(self.load_and_analyze)
 
         data_layout.addWidget(QLabel("資料檔案："))
         data_layout.addWidget(self.file_selector)
@@ -61,32 +70,49 @@ class TransitionTab(QWidget):
         main_layout.addWidget(self.chart_group)
 
         self.setLayout(main_layout)
-    def plot_placeholder_matrix(self):
-        """ 測試用：畫出一個 5x5 隨機矩陣熱圖 """
-        import numpy as np
-        import seaborn as sns
+    def load_and_analyze(self):
+        try:
+            df_matrix = self.data_center.get_transition_matrix_from_log()
+            self.analyzer = TransitionAnalyzer(df_matrix)
+            self.plotter = TransitionPlotter()
+            print("✅ Transition matrix loaded.")
+        except Exception as e:
+            print(f"❌ 讀取轉移矩陣失敗：{e}")
 
-        self.ax.clear()
-        dummy_data = np.random.rand(5, 5)
-        sns.heatmap(dummy_data, annot=True, fmt=".2f", ax=self.ax, cmap="YlGnBu")
-        self.ax.set_title("測試熱圖 (假資料)")
-        self.canvas.draw()
+    def plot_placeholder_matrix(self):
+        if not self.analyzer:
+            print("⚠️ 尚未載入資料")
+            return
+        df = self.analyzer.get_matrix()
+        fig = self.plotter.plot_transition_matrix(df)
+        self._render_figure(fig)
+
     def plot_placeholder_freq(self):
-        import numpy as np
-        self.ax.clear()
-        values = np.random.randint(1, 100, size=10)
-        self.ax.bar(range(len(values)), values, color="skyblue")
-        self.ax.set_title(" 狀態出現頻率 (假資料)")
-        self.canvas.draw()
+        if not self.analyzer:
+            print("⚠️ 尚未載入資料")
+            return
+        df_freq = self.analyzer.calc_frequency()
+        fig = self.plotter.plot_frequency_matrix(df_freq)
+        self._render_figure(fig)
 
     def plot_placeholder_entropy(self):
-        import numpy as np
-        self.ax.clear()
-        values = np.random.rand(10)
-        self.ax.plot(values, marker='o')
-        self.ax.set_title(" 狀態熵分佈 (假資料)")
+        if not self.analyzer:
+            print("⚠️ 尚未載入資料")
+            return
+        df_entropy = self.analyzer.calc_entropy()
+        fig = self.plotter.plot_entropy_bar(df_entropy)
+        self._render_figure(fig)
+
+
+    def _render_figure(self, fig):
+        self.canvas.figure.clf()
+            # 移除原本的畫布元件
+        self.chart_group.layout().removeWidget(self.canvas)
+        self.canvas.setParent(None)
+
+        # 用新圖建立新的畫布
+        self.canvas = FigureCanvas(fig)
         self.canvas.draw()
-
-
+        self.chart_group.layout().addWidget(self.canvas)
 
 
