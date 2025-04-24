@@ -2,10 +2,12 @@ from os import wait
 from pathlib import Path
 from PySide6.QtWidgets import (
     QWidget, QPushButton, QLabel, QFileDialog,
-    QHBoxLayout, QVBoxLayout, QMessageBox, QInputDialog
+    QHBoxLayout, QVBoxLayout, QMessageBox, QInputDialog,
+    QComboBox
 )
-from core.ai_action import AIPredictor
 from ui.components.hotkey_manager import register_hotkeys
+from core.ai_action import AIPredictor
+from data.data_facade import DataFacade
 
 MODEL_DIR = Path("data/models")
 DATA_DIR = Path("data")
@@ -20,33 +22,38 @@ class Ai_Control(QWidget):
             "ai_run": self.on_predict,
         })
         # ----------------- AI Agent -----------------
-        print(DATA_DIR)
-        self.agent = AIPredictor(DATA_DIR).load_model("104900.pkl")
+        self.data = DataFacade()
+        self.model_list = self.data.list_models()
+        self.model_name = self.model_list[0]
+        self.data.set_q_table(self.model_name)
+        q_table = self.data.get_q_table()
+        self.agent = AIPredictor(q_table, self.data, model_name=self.model_name)
 
         # ----------------- Widgets ------------------
         self.btn_predict = QPushButton("AI 決策推薦")
-        self.btn_model   = QPushButton("選擇權重")
-        self.lbl_show    = QLabel("尚未預測")
+        self.combo_model = QComboBox()
+        self.combo_model.addItems(self.model_list)
+        self.lbl_show = QLabel("尚未預測")
+
 
         # ----------------- Layout -------------------
         row = QHBoxLayout()
-        for b in (self.btn_predict, self.btn_model):
-            row.addWidget(b)
+        row.addWidget(self.btn_predict)
+        row.addWidget(self.combo_model)
         main = QVBoxLayout(self)
         main.addLayout(row)
         main.addWidget(self.lbl_show)
-
         # ----------------- Signals ------------------
         self.btn_predict.clicked.connect(self.on_predict)
-        self.btn_model.clicked.connect(self.on_choose_model)
+        self.combo_model.currentTextChanged.connect(self.on_choose_model)
 
     # ==================================================
     # Slots
     # ==================================================
+
     def on_predict(self):
         try:
             sug, state, _ = self.agent.predict()
-            # 轉成 Python int，避免 QLabel 顯示 numpy 型別
             sug = int(sug)
             state = tuple(int(x) for x in state)
         except Exception as e:
@@ -56,14 +63,12 @@ class Ai_Control(QWidget):
         self.lbl_show.setText(
             f"AI 建議：{txt}  (state={state})\n模型：{self.agent.model_name}")
 
-    def on_choose_model(self):
-        fname, _ = QFileDialog.getOpenFileName(
-            self, "選擇模型", str(MODEL_DIR), "PKL Files (*.pkl)")
-        if fname:
-            try:
-                self.agent.load_model(Path(fname).name)
-            except Exception as e:
-                QMessageBox.warning(self, "載入失敗", str(e))
-                return
-            self.lbl_show.setText(f"已切換模型：{self.agent.model_name}")
+    def on_choose_model(self, fname: str):
+        try:
+            self.data.set_q_table(fname)
+            q_table = self.data.get_q_table()
+            self.agent = AIPredictor(q_table, self.data, model_name=fname)
+            self.lbl_show.setText(f"✅ 已切換模型：{fname}")
+        except Exception as e:
+            QMessageBox.warning(self, "載入失敗", str(e))
 

@@ -1,4 +1,4 @@
-data_file: data/game_log.csv
+data_file: data/raw/game_log.csv
 bet_vector:
   cars:
     "0": "聯結機"

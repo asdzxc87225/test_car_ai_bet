@@ -8,7 +8,7 @@ class DataFacade:
     def __init__(self):
         # 設定資料位置（可日後讀設定檔）
         self.paths = {
-            "game_log": "data/game_log.csv",
+            "game_log": "data/raw/game_log.csv",
             "q_table": "data/models/final.pkl",
             "transition_matrix": "data/transition_matrix.csv"
         }

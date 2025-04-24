@@ -13,6 +13,7 @@ class DataManager:
     def __init__(self):
         self.columns = COLUMNS
         self.file_path = DATA_FILE
+        print(self.file_path)
         self._ensure_file()
 
     def _ensure_file(self):
