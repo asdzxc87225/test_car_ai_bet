@@ -26,12 +26,11 @@ class Ai_Control(QWidget):
         # ----------------- Widgets ------------------
         self.btn_predict = QPushButton("AI 決策推薦")
         self.btn_model   = QPushButton("選擇權重")
-        self.btn_commit  = QPushButton("寫入勝利車")
         self.lbl_show    = QLabel("尚未預測")
 
         # ----------------- Layout -------------------
         row = QHBoxLayout()
-        for b in (self.btn_predict, self.btn_model, self.btn_commit):
+        for b in (self.btn_predict, self.btn_model):
             row.addWidget(b)
         main = QVBoxLayout(self)
         main.addLayout(row)
@@ -40,7 +39,6 @@ class Ai_Control(QWidget):
         # ----------------- Signals ------------------
         self.btn_predict.clicked.connect(self.on_predict)
         self.btn_model.clicked.connect(self.on_choose_model)
-        self.btn_commit.clicked.connect(self.on_commit_winner)
 
     # ==================================================
     # Slots
@@ -68,15 +66,4 @@ class Ai_Control(QWidget):
                 QMessageBox.warning(self, "載入失敗", str(e))
                 return
             self.lbl_show.setText(f"已切換模型：{self.agent.model_name}")
-
-    def on_commit_winner(self):
-        car_no, ok = QInputDialog.getInt(self, "輸入勝利車號", "0–7：", 0, 0, 7, 1)
-        if ok:
-            try:
-                self.agent.append_winner(car_no)
-            except Exception as e:
-                QMessageBox.warning(self, "寫入失敗", str(e))
-                return
-            QMessageBox.information(self, "完成", "已寫入 game_log.csv")
-            self.lbl_show.setText("已追加資料，可再次預測")
 

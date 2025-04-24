@@ -83,18 +83,6 @@ class AIPredictor:
         print(state)
         return suggestion, state, last5
 
-    def append_winner(self, winner_car: int):
-        """把真實勝利車號寫回 game_log.csv"""
-        df = pd.read_csv(self.log_file)
-        new_row = {
-            "timestamp": datetime.now().isoformat(timespec="seconds"),
-            "round": df["round"].max() + 1 if not df.empty else 1,
-            "bet": "",  # 如需存下注金額可自行補
-            "winner": winner_car,
-        }
-        df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-        df.to_csv(self.log_file, index=False)
-        logging.debug("追加 winner=%s 至 game_log.csv", winner_car)
 
     # ---------- 私有方法 ----------
     def _prepare_log(self) -> pd.DataFrame:
