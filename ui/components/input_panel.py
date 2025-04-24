@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QPushButton, QComboBox
 )
 from PySide6.QtCore import QDateTime
-from ui.hotkey_manager import register_hotkeys
+from ui.components.hotkey_manager import register_hotkeys
 
 
 

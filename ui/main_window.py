@@ -2,9 +2,9 @@ from PySide6.QtWidgets import (
     QMainWindow, 
     QTabWidget
 )
-from ui.betting_page import BettingPage
-from ui.analytics_page import AnalyticsPage
-from ui.training_page import TrainingPage
+from ui.pages.betting_page import BettingPage
+from ui.pages.analytics_page import AnalyticsPage
+from ui.pages.training_page import TrainingPage
 
 
 class MainWindow(QMainWindow):

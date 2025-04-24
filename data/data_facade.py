@@ -1,7 +1,7 @@
 # data/data_facade.py
 import os
 import pandas as pd
-from data.Analytics_page.feature_builder import build_features
+from data.Analytics.feature_builder import build_features
 from data.transition_matrix_builder import build_transition_matrix
 
 class DataFacade:

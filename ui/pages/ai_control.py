@@ -1,13 +1,14 @@
+from os import wait
 from pathlib import Path
 from PySide6.QtWidgets import (
     QWidget, QPushButton, QLabel, QFileDialog,
     QHBoxLayout, QVBoxLayout, QMessageBox, QInputDialog
 )
-from agent.ai_action import AIPredictor
-from ui.hotkey_manager import register_hotkeys
+from core.ai_action import AIPredictor
+from ui.components.hotkey_manager import register_hotkeys
 
-MODEL_DIR = Path(__file__).parent.parent / "data" / "models"
-DATA_DIR = Path(__file__).parent.parent / "data"
+MODEL_DIR = Path("data/models")
+DATA_DIR = Path("data")
 
 
 class Ai_Control(QWidget):
@@ -19,6 +20,7 @@ class Ai_Control(QWidget):
             "ai_run": self.on_predict,
         })
         # ----------------- AI Agent -----------------
+        print(DATA_DIR)
         self.agent = AIPredictor(DATA_DIR).load_model("104900.pkl")
 
         # ----------------- Widgets ------------------

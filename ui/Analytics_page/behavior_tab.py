@@ -17,8 +17,8 @@ plt.rcParams['font.family'] = [
 
 from data.config_loader import load_config
 from data.data_facade import DataFacade
-from data.Analytics_page.behavior_analyzer import BehaviorAnalyzer
-from data.Analytics_page import behavior_plotter as bp
+from data.Analytics.behavior_analyzer import BehaviorAnalyzer
+from data.Analytics import behavior_plotter as bp
 from data.config_loader import load_config
 
 
