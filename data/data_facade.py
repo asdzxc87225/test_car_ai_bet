@@ -13,6 +13,10 @@ class DataFacade:
             "transition_matrix": "data/transition_matrix.csv"
         }
 
+    @staticmethod
+    def load_q_table(path: str) -> pd.DataFrame:
+        """讀取 Q-table 檔案（目前支援 .pkl）"""
+        return pd.read_pickle(path)
 
     def get_q_table(self) -> pd.DataFrame:
         return pd.read_pickle(self.paths["q_table"])
