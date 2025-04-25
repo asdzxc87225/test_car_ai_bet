@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QLineEdit, QFormLayout, QGroupBox, QTextEdit, QMessageBox
 )
-from PySide6.QtCore import QThread, QTimer
+from PySide6.QtCore import QThread, QTimer, QMetaObject, Qt, Q_ARG
 from datetime import datetime
 from controllers.model_training_controller import TrainerWorker
 from core import model_logger
@@ -55,9 +55,12 @@ class TrainingPage(QWidget):
         return group
 
     def _append_log(self, msg: str):
-        import threading
-        print(f"[_append_log] 執行緒：{threading.current_thread().name}")
-        self.log_display.append(f"[訓練中] {msg}")
+        QMetaObject.invokeMethod(
+            self.log_display,
+            "append",
+            Qt.QueuedConnection,
+            Q_ARG(str, f"[訓練中] {msg}")
+        )
 
     def _on_train_clicked(self):
         try:

@@ -142,5 +142,29 @@
     "total_reward": 41843,
     "max_drawdown": 11,
     "timestamp": "2025-04-25T21:06:17.033867"
+  },
+  {
+    "model_name": "q_model_0425_2201.pkl",
+    "episodes": 5000,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": 0.5122620220180284,
+    "hit_rate": 0.7561310110090141,
+    "total_reward": 41087,
+    "max_drawdown": 8,
+    "timestamp": "2025-04-25T22:01:34.853457"
+  },
+  {
+    "model_name": "q_model_0425_2202.pkl",
+    "episodes": 5000,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": 0.5179535788672844,
+    "hit_rate": 0.7589767894336422,
+    "total_reward": 41529,
+    "max_drawdown": 12,
+    "timestamp": "2025-04-25T22:03:00.009724"
   }
 ]
