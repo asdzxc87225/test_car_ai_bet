@@ -32,8 +32,6 @@ class TransitionTab(QWidget):
 
         data_layout.addWidget(QLabel("資料檔案："))
         data_layout.addWidget(self.file_selector)
-        data_layout.addWidget(self.start_round)
-        data_layout.addWidget(self.end_round)
         data_layout.addWidget(self.load_button)
         self.data_group.setLayout(data_layout)
 

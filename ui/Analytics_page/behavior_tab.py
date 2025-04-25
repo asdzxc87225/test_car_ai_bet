@@ -92,6 +92,10 @@ class BehaviorTab(QWidget):
             
             # TODO: 若支援多檔案可加入 self.file_selector.currentText()
             df = data_center.get_game_log()
+            max_round = int(df["round"].max())
+            self.start_round.setMaximum(max_round)
+            self.end_round.setMaximum(max_round)
+
             
             # 切分資料範圍
             start = self.start_round.value()

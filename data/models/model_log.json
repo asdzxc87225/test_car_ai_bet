@@ -22,5 +22,87 @@
     "total_reward": 0,
     "max_drawdown": 0,
     "timestamp": "2025-04-25T09:41:04.393713"
+  },
+  {
+    "model_name": "q_model_0425_1043.pkl",
+    "episodes": null,
+    "epsilon": null,
+    "alpha": null,
+    "gamma": null,
+    "hit_rate": 0.0,
+    "max_drawdown": 0,
+    "roi": 0.0,
+    "total_reward": 0,
+    "timestamp": "2025-04-25T10:43:51.273283"
+  },
+  {
+    "model_name": "q_model_0425_1044.pkl",
+    "episodes": null,
+    "epsilon": null,
+    "alpha": null,
+    "gamma": null,
+    "hit_rate": 0.0,
+    "max_drawdown": 0,
+    "roi": 0.0,
+    "total_reward": 0,
+    "timestamp": "2025-04-25T10:44:15.803846"
+  },
+  {
+    "model_name": "q_model_0425_1044.pkl",
+    "episodes": null,
+    "epsilon": null,
+    "alpha": null,
+    "gamma": null,
+    "hit_rate": 0.0,
+    "max_drawdown": 0,
+    "roi": 0.0,
+    "total_reward": 0,
+    "timestamp": "2025-04-25T10:44:47.205096"
+  },
+  {
+    "model_name": "q_model_0425_1044.pkl",
+    "episodes": null,
+    "epsilon": null,
+    "alpha": null,
+    "gamma": null,
+    "hit_rate": 0.0,
+    "max_drawdown": 0,
+    "roi": 0.0,
+    "total_reward": 0,
+    "timestamp": "2025-04-25T10:48:54.980284"
+  },
+  {
+    "model_name": "q_model_0425_1116.pkl",
+    "episodes": null,
+    "epsilon": null,
+    "alpha": null,
+    "gamma": null,
+    "hit_rate": 0.0,
+    "max_drawdown": 0,
+    "roi": 0.0,
+    "total_reward": 0,
+    "timestamp": "2025-04-25T11:19:56.434789"
+  },
+  {
+    "model_name": "q_model_0425_1120.pkl",
+    "episodes": 10,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "hit_rate": 0.7,
+    "roi": 0.2,
+    "timestamp": "2025-04-25T11:20:50.098848"
+  },
+  {
+    "model_name": "q_model_0425_1133.pkl",
+    "episodes": 10,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": 0.0,
+    "hit_rate": 0.0,
+    "total_reward": 0,
+    "max_drawdown": 0,
+    "timestamp": "2025-04-25T11:33:52.041578"
   }
 ]

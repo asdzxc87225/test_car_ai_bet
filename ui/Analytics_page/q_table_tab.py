@@ -38,9 +38,6 @@ class QTableTab(QWidget):
         layout.addWidget(QLabel("Q-table 模型："))
         layout.addWidget(self.model_selector)
 
-        self.load_button = QPushButton("載入 Q-table")
-        self.load_button.clicked.connect(self._on_load_clicked)
-        layout.addWidget(self.load_button)
 
         group.setLayout(layout)
         return group
@@ -88,6 +85,8 @@ class QTableTab(QWidget):
             self.selected_model_path = None
         else:
             self.selected_model_path = self.model_selector.itemData(index)
+            self._on_load_clicked()  # ✅ 自動載入 Q-table！
+
 
     def _on_load_clicked(self):
         if not self.selected_model_path:
@@ -95,7 +94,6 @@ class QTableTab(QWidget):
             return
         try:
             self.q_table = analyzer.load_q_table(self.selected_model_path)
-            QMessageBox.information(self, "成功", "模型載入完成")
         except Exception as e:
             QMessageBox.critical(self, "讀取失敗", f"發生錯誤：{e}")
 
