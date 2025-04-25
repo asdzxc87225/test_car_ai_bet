@@ -1,0 +1,14 @@
+[
+  {
+    "model_name": "q_model_0425_0912.pkl",
+    "episodes": 10,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": 0.0,
+    "hit_rate": 0.0,
+    "total_reward": 0,
+    "max_drawdown": 0,
+    "timestamp": "2025-04-25T09:12:43.938554"
+  }
+]
