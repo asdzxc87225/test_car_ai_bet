@@ -27,10 +27,15 @@ class QLearner:
         if state not in self.q_table:
             self.q_table[state] = [0.0, 0.0]
 
-        if np.random.rand() < self.epsilon:
-            return np.random.choice([0, 1])
+        q_values = self.q_table[state]
+        q_diff = abs(q_values[1] - q_values[0])
+        confidence = min(q_diff, 1.0)  # 將信心值壓在 [0,1]
+
+        if np.random.rand() < self.epsilon * (1 - confidence):
+            return np.random.choice([0, 1])  # 探索多一點
         else:
-            return int(self.q_table[state][1] > self.q_table[state][0])
+            return int(q_values[1] > q_values[0])  # 選擇較大 Q
+
 
     def _update_q_value(self, state, action, reward, next_state):
         """更新 Q 值"""

@@ -98,7 +98,7 @@ class QTableTab(QWidget):
             QMessageBox.critical(self, "讀取失敗", f"發生錯誤：{e}")
 
     def _on_show_max_q(self):
-        if self.q_table is None or self.q_table.empty:
+        if self.q_table is None or (hasattr(self.q_table, "empty") and self.q_table.empty):
             self._warn_no_q_table()
             return
         data = analyzer.compute_max_q(self.q_table)
