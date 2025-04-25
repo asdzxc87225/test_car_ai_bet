@@ -166,5 +166,101 @@
     "total_reward": 41529,
     "max_drawdown": 12,
     "timestamp": "2025-04-25T22:03:00.009724"
+  },
+  {
+    "model_name": "q_model_0425_2214.pkl",
+    "episodes": 1000,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": 0.0001269035532994924,
+    "hit_rate": 0.750253807106599,
+    "total_reward": 2,
+    "max_drawdown": 31,
+    "timestamp": "2025-04-25T22:14:50.642087"
+  },
+  {
+    "model_name": "q_model_0425_2214.pkl",
+    "episodes": 1000,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": 0.001005530417295123,
+    "hit_rate": 0.7586726998491704,
+    "total_reward": 16,
+    "max_drawdown": 29,
+    "timestamp": "2025-04-25T22:15:00.116122"
+  },
+  {
+    "model_name": "q_model_0425_2214.pkl",
+    "episodes": 1000,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": -0.00012670256572695597,
+    "hit_rate": 0.7507127019322142,
+    "total_reward": -2,
+    "max_drawdown": 30,
+    "timestamp": "2025-04-25T22:15:03.233200"
+  },
+  {
+    "model_name": "q_model_0425_2214.pkl",
+    "episodes": 1000,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": 0.0002472035102898461,
+    "hit_rate": 0.7586675730795377,
+    "total_reward": 4,
+    "max_drawdown": 31,
+    "timestamp": "2025-04-25T22:15:12.007656"
+  },
+  {
+    "model_name": "q_model_0425_2214.pkl",
+    "episodes": 1000,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": 0.00012656625743576763,
+    "hit_rate": 0.7526262498417922,
+    "total_reward": 2,
+    "max_drawdown": 30,
+    "timestamp": "2025-04-25T22:15:18.217456"
+  },
+  {
+    "model_name": "q_model_0425_2214.pkl",
+    "episodes": 2000,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": 0.00024975804689207333,
+    "hit_rate": 0.7557366301395523,
+    "total_reward": 8,
+    "max_drawdown": 32,
+    "timestamp": "2025-04-25T22:15:59.966500"
+  },
+  {
+    "model_name": "q_model_0425_2217.pkl",
+    "episodes": 1000,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": 0.01110357164888039,
+    "hit_rate": 0.7544876935414225,
+    "total_reward": 180,
+    "max_drawdown": 580,
+    "timestamp": "2025-04-25T22:17:04.254723"
+  },
+  {
+    "model_name": "q_model_0425_2217.pkl",
+    "episodes": 5000,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": 0.003979060195720023,
+    "hit_rate": 0.7548774573805349,
+    "total_reward": 320,
+    "max_drawdown": 640,
+    "timestamp": "2025-04-25T22:17:30.612908"
   }
 ]

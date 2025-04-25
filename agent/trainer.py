@@ -48,12 +48,11 @@ class QLearner:
 
     def _get_reward(self, row, action):
         """定義獎勵"""
-        return 1 if (action == 1 and row.get('wine_type', 0) == 1) else -1
+        return 20 if (action == 1 and row.get('wine_type', 0) == 1) else -20
 
     def train(self, df, episodes=1000, on_step=None):
         total_hits = 0
         total_bets = 0
-        cumulative_reward = 0
         max_cum_reward = 0
 
         n_data = len(df)
@@ -65,6 +64,7 @@ class QLearner:
             idx = start_idx
             steps = 0
             fail_count = 0 
+            cumulative_reward = 0
             while steps < step_limit and fail_count < MAX_FAIL:
                 row = df.iloc[idx]
                 state = self._get_state(row)
