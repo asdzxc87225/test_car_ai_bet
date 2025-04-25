@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem,
-    QHeaderView, QGroupBox
+    QHeaderView, QGroupBox,QPushButton
 )
 from PySide6.QtCore import Qt
 import json
@@ -14,6 +14,10 @@ class ModelLogTab(QWidget):
 
     def _init_ui(self):
         layout = QVBoxLayout()
+        refresh_button = QPushButton("🔄 更新模型紀錄")
+        refresh_button.clicked.connect(self._load_logs)
+
+        layout.addWidget(refresh_button)
         layout.addWidget(self._create_table_panel())
         self.setLayout(layout)
 

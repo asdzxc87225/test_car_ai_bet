@@ -200,5 +200,41 @@
     "roi": -0.1793020457280385,
     "total_reward": -149,
     "timestamp": "2025-04-25T18:37:37.599456"
+  },
+  {
+    "model_name": "q_model_0425_1850.pkl",
+    "episodes": null,
+    "epsilon": null,
+    "alpha": null,
+    "gamma": null,
+    "hit_rate": 0.4127557160048135,
+    "max_drawdown": 148,
+    "roi": -0.17448856799037304,
+    "total_reward": -145,
+    "timestamp": "2025-04-25T18:50:58.182378"
+  },
+  {
+    "model_name": "q_model_0425_1850.pkl",
+    "episodes": null,
+    "epsilon": null,
+    "alpha": null,
+    "gamma": null,
+    "hit_rate": 0.4175691937424789,
+    "max_drawdown": 1370,
+    "roi": -0.1648616125150421,
+    "total_reward": -1370,
+    "timestamp": "2025-04-25T18:51:09.124880"
+  },
+  {
+    "model_name": "q_model_0425_1850.pkl",
+    "episodes": null,
+    "epsilon": null,
+    "alpha": null,
+    "gamma": null,
+    "hit_rate": 0.40972322503008424,
+    "max_drawdown": 15011,
+    "roi": -0.18055354993983153,
+    "total_reward": -15004,
+    "timestamp": "2025-04-25T18:51:29.601384"
   }
 ]
