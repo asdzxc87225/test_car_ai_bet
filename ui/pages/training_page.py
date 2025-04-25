@@ -87,7 +87,7 @@ class TrainingPage(QWidget):
             self.training_thread.finished.connect(self.training_thread.deleteLater)
 
 # ✅ 錯誤處理
-            self.training_worker.error.connect(self._on_train_failed)
+            self.training_worker.error.connect(self._on_train_finished)
             self.training_worker.error.connect(self.training_thread.quit)
 
 # ✅ 啟動 thread（之後 Qt 自動執行 run）
@@ -97,26 +97,28 @@ class TrainingPage(QWidget):
 
     def _on_train_finished_defer(self, result):
         QTimer.singleShot(0, lambda: self._on_train_finished(result))
-
     def _on_train_finished(self, result):
         self.train_button.setEnabled(True)
 
         model_name = self.input_model_name.text()
-        model_logger.log_model({
+
+        record = {
             "model_name": model_name,
-            "episodes": result.get("episodes"),
-            "epsilon": result.get("epsilon"),
-            "alpha": result.get("alpha"),
-            "gamma": result.get("gamma"),
-            **result
-        })
+            "episodes": int(self.input_episodes.text()),
+            "epsilon": float(self.input_epsilon.text()),
+            "alpha": float(self.input_alpha.text()),
+            "gamma": float(self.input_gamma.text()),
+            "roi": result.get("roi", 0.0),
+            "hit_rate": result.get("hit_rate", 0.0),
+            "total_reward": result.get("total_reward", 0),
+            "max_drawdown": result.get("max_drawdown", 0),
+            "timestamp": datetime.now().isoformat()
+        }
+
+        # ✅ 用 import 進來的 model_logger，不要用 self.
+        model_logger.log_model(record)
 
         self.log_display.append(
-            f"✅ 完成訓練：ROI={result.get('roi'):.3f} 命中率={result.get('hit_rate'):.2%}\n"
+            f"✅ 完成訓練：ROI={record['roi']:.3f} 命中率={record['hit_rate']:.2%}\n"
         )
-
-    def _on_train_failed(self, msg):
-        self.train_button.setEnabled(True)
-        QMessageBox.critical(self, "訓練失敗", msg)
-        self.log_display.append("❌ 訓練失敗")
 

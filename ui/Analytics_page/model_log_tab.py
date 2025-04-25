@@ -55,6 +55,7 @@ class ModelLogTab(QWidget):
         with open(log_path, "r", encoding="utf-8") as f:
             logs = json.load(f)
 
+        self.table.setRowCount(0)
         self.table.setRowCount(len(logs))
         for row, entry in enumerate(reversed(logs)):  # 最新在最上面
             self._insert_row(row, entry)
