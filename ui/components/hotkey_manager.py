@@ -47,4 +47,8 @@ def register_hotkeys(widget: QWidget, handlers: dict):
         QShortcut(QKeySequence("Return"), widget).activated.connect(handlers["submit"])
     if "ai_run" in handlers:
         QShortcut(QKeySequence("a"), widget).activated.connect(handlers["ai_run"])
+    if "winner_select" in handlers:
+        for key, index in KEY_CAR_MAP.items():
+            shortcut = QShortcut(QKeySequence(f"Alt+{key}"), widget)
+            shortcut.activated.connect(lambda idx=index: handlers["winner_select"](idx))
 

@@ -1,3 +1,4 @@
+# agent/trainer.py
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -9,84 +10,89 @@ class QLearner:
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
-        self.q_table = defaultdict(lambda: np.zeros(2))  # 動作為 0/1
+        self.q_table = {}  # Q-table 初始化為空字典
 
-    def _get_state(self, row):
-        """將單列資料轉換為 state key，例如 (diff, rolling_sum_5)"""
-        return (row['diff'], row['rolling_sum_5'])
+        # 用於績效評估
+        self.total_reward = 0
+        self.max_drawdown = 0
+        self.roi = 0.0
+        self.hit_rate = 0.0
+
+    def train(self, df, episodes=1000, on_step=None):
+        total_hit = 0
+        total_bet = 0
+        max_reward = 0
+        current_reward = 0
+        import threading
+        print(f"[QLearner.train] 執行緒：{threading.current_thread().name}")
+
+        for i in range(episodes):
+            for idx, row in df.iterrows():
+                state = self._get_state(row)
+                action = self._choose_action(state)
+                reward = self._get_reward(row, action)
+                next_state = self._get_state(row, next_step=True)
+
+                # 更新 Q 值
+                self._update_q_value(state, action, reward, next_state)
+
+                # 統計績效
+                current_reward += reward
+                total_bet += 1
+                if reward > 0:
+                    total_hit += 1
+
+                max_reward = max(max_reward, current_reward)
+                self.max_drawdown = max(self.max_drawdown, max_reward - current_reward)
+
+            # 每 N 輪輸出進度
+            if on_step and i % 100 == 0:
+                on_step(f"第 {i} 輪訓練中... 總獎勵：{current_reward}")
+
+        # 訓練完成後的指標記錄
+        self.total_reward = current_reward
+        self.roi = current_reward / total_bet if total_bet else 0
+        self.hit_rate = total_hit / total_bet if total_bet else 0
+
+        if on_step:
+            on_step("✅ 訓練完成")
+
+    def _get_state(self, row, next_step=False):
+        # 根據 row 產生狀態，預留 next_step=True 給需要轉移邏輯用
+        return (row.get("diff", 0), row.get("rolling_sum_5", 0))
 
     def _choose_action(self, state):
-        if np.random.rand() < self.epsilon:
-            return np.random.choice([0, 1])  # 探索
-        return np.argmax(self.q_table[state])  # 利用
+        import random
+        if state not in self.q_table:
+            self.q_table[state] = [0, 0]  # 初始化動作空間（0: 不下注, 1: 下小車）
 
-    def _update_q(self, s, a, r, s_):
-        best_next_q = np.max(self.q_table[s_])
-        self.q_table[s][a] += self.alpha * (r + self.gamma * best_next_q - self.q_table[s][a])
+        if random.random() < self.epsilon:
+            return random.choice([0, 1])
+        else:
+            return int(self.q_table[state][1] > self.q_table[state][0])
 
-    def train(self, df: pd.DataFrame, episodes: int = 1000):
-        required_cols = {"diff", "rolling_sum_5", "wine_type"}
-        missing = required_cols - set(df.columns)
+    def _get_reward(self, row, action):
+        # 根據是否選中小車贏得報酬，這邏輯可改
+        if action == 1 and row.get("wine_type", 0) == 1:
+            return 1
+        else:
+            return -1
 
-        if missing:
-            raise ValueError(f"資料缺少必要欄位：{', '.join(missing)}")
-        for ep in range(episodes):
-            for i in range(len(df) - 1):
-                row = df.iloc[i]
-                next_row = df.iloc[i + 1]
-                s = self._get_state(row)
-                a = self._choose_action(s)
+    def _update_q_value(self, state, action, reward, next_state):
+        if next_state not in self.q_table:
+            self.q_table[next_state] = [0, 0]
 
-                # 獎勵設計：若猜中 wine_type，給 +1，否則 -1
-                correct = int(a == row['wine_type'])
-                r = 1 if correct else -1
-
-                s_ = self._get_state(next_row)
-                self._update_q(s, a, r, s_)
-
-        self._finalize_q_table()
-
-    def _finalize_q_table(self):
-        """轉換 defaultdict 為固定 Q 表格 DataFrame"""
-        index = list(self.q_table.keys())
-        data = [self.q_table[s] for s in index]
-        self.q_table = pd.DataFrame(data, index=index, columns=[0, 1])
+        predict = self.q_table[state][action]
+        target = reward + self.gamma * max(self.q_table[next_state])
+        self.q_table[state][action] += self.alpha * (target - predict)
 
     def save(self, path):
-        path = Path(path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, 'wb') as f:
+        import pickle
+        with open(path, "wb") as f:
             pickle.dump(self.q_table, f)
 
     def load(self, path):
-        with open(path, 'rb') as f:
+        import pickle
+        with open(path, "rb") as f:
             self.q_table = pickle.load(f)
 
-    def get_q_table(self) -> pd.DataFrame:
-        return self.q_table
-
-    def evaluate(self, df: pd.DataFrame) -> dict:
-        hits = 0
-        total = 0
-        balance = 0
-
-        for i in range(len(df)):
-            row = df.iloc[i]
-            s = self._get_state(row)
-            if s not in self.q_table.index:
-                continue
-            a = np.argmax(self.q_table.loc[s])
-            correct = int(a == row['wine_type'])
-            total += 1
-            hits += correct
-            balance += (5 if correct else -1)  # 可依賠率自定義
-
-        hit_rate = hits / total if total else 0
-        roi = balance / total if total else 0
-
-        return {
-            "hit_rate": hit_rate,
-            "roi": roi,
-            "total_reward": balance,
-            "total_tested": total
-        }

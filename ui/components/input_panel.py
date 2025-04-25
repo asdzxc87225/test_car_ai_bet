@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QDateTime
 from ui.components.hotkey_manager import register_hotkeys
-from PySide6.QtCore import Qt, QEvent
+
 
 
 
@@ -23,29 +23,21 @@ class InputPanel(QWidget):
 
         self.round_label = QLabel(f"🎯 目前回合數：{self.current_round}")
         self.winner_selector = QComboBox()
-        self.setFocusPolicy(Qt.StrongFocus)
 
         self.setup_ui()
         register_hotkeys(self, {
             "increase": self.increase_bet,
             "decrease": self.decrease_bet,
             "clear": self.clear_bets,
+            "submit":self.submit_bet,
+            "winner_select": self.select_winner,
         })
-        self.setFocusPolicy(Qt.StrongFocus)
         self.installEventFilter(self)
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.KeyPress:
-            key = event.key()
-            if Qt.Key_1 <= key <= Qt.Key_8:
-                index = key - Qt.Key_1  # 對應到 0~7
-                if index < self.winner_selector.count():
-                    self.winner_selector.setCurrentIndex(index)
-                    print(f"🎯 勝者選擇切換為：{self.car_names[index]}")
-                    return True
-        return super().eventFilter(obj, event)
-
-
-
+    def select_winner(self, index):
+        if 0 <= index < self.winner_selector.count():
+            self.winner_selector.setCurrentIndex(index)
+            print(f"🎯 勝者切換為：{self.car_names[index]}")
+ 
     def setup_ui(self):
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.round_label)
@@ -136,7 +128,6 @@ class InputPanel(QWidget):
             winner=data["winner"]
         )
         self.next_round()
-        print(f"✅ 資料已儲存：{data}")
 
     
 
