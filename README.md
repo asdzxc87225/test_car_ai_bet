@@ -35,4 +35,6 @@ make run      # 啟動 UI
 📄 詳細說明請見：
 [`docs/refactor_plan.md`](docs/refactor_plan.md)
 
+ 這是一行練習 Pull Request 的註解
+
 
