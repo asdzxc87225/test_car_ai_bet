@@ -35,6 +35,9 @@ def _action_by_row_max(df: pd.DataFrame | pd.Series) -> int:
 # ---------- AI 模型：Q 表預測 ----------
 class AIPredictor:
     def __init__(self, q_table: pd.DataFrame, data_facade, model_name: str = "未知模型"):
+        if isinstance(q_table, dict):
+            q_table = pd.DataFrame.from_dict(q_table, orient="index")
+            q_table.columns = [0, 1]
         self.q_table = q_table
         self.data_facade = data_facade
         self.model_name = model_name

@@ -1,10 +1,25 @@
 # data/Analytics_page/q_table_analyzer.py
 
 import pandas as pd
+import pickle
 
 def load_q_table(path: str) -> pd.DataFrame:
-    """讀取 Q-table 檔案（目前支援 .pkl）"""
-    return pd.read_pickle(path)
+    """讀取 Q-table（支援新版 dict 與舊版 DataFrame）"""
+    with open(path, "rb") as f:
+        q_table = pickle.load(f)
+
+    # ✅ 若是 dict，轉為 DataFrame
+    if isinstance(q_table, dict):
+        df = pd.DataFrame.from_dict(q_table, orient="index", columns=[0, 1])
+        df.index.name = "state"
+        return df
+
+    # ✅ 若已是 DataFrame，直接使用
+    elif isinstance(q_table, pd.DataFrame):
+        return q_table
+
+    else:
+        raise ValueError("不支援的 Q-table 格式")
 
 def compute_max_q(q_table: pd.DataFrame) -> pd.Series:
     """每個 state 的最大 Q 值"""
