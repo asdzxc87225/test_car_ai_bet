@@ -6,6 +6,8 @@ from datetime import datetime
 
 class DataFacade:
     def __init__(self, path_game_log: str, path_q_table: str):
+        self._on_data_updated = []
+
         self.path_game_log = path_game_log
         self.path_q_table = path_q_table
         self._game_log = None
@@ -16,12 +18,29 @@ class DataFacade:
         self._load_game_log()
         self._build_features()
         self._load_q_table()
+    def register_on_data_updated(self, callback: callable):
+        """外部可以註冊：資料更新完成時要通知的函數"""
+        if callable(callback):
+            self._on_data_updated.append(callback)
+        else:
+            raise TypeError("callback 必須是 callable")
+
+    def _notify_data_updated(self):
+        """通知所有註冊的 callback"""
+        for callback in self._on_data_updated:
+            try:
+                callback()
+            except Exception as e:
+                print(f"[Error] 通知資料更新失敗: {e}")
+
 
     def reload(self):
         """重新讀取資料並刷新快取"""
         self._load_game_log()
         self._build_features()
         self._load_q_table()
+        self._notify_data_updated()
+
     def _build_features(self):
         """加工特徵資料，快取起來"""
         if self._game_log is not None:
@@ -66,7 +85,7 @@ class DataFacade:
             return self._q_table
         else:
             raise ValueError("尚未載入 q_table 資料！")
-    def append_game_log(self, new_entry: dict):
+    def append_game_log(self, new_entry: dict, auto_reload: bool = True):
         """追加一筆新下注資料到 game_log.csv，並刷新快取"""
         if not isinstance(new_entry, dict):
             raise TypeError("新資料必須是 dict 格式")
@@ -85,10 +104,16 @@ class DataFacade:
             new_entry['timestamp'] = new_entry['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
 
         df_new = pd.DataFrame([new_entry])
+        """追加一筆新下注資料到 game_log.csv，可選擇是否自動 reload"""
+        # （資料檢查與轉換略）
 
         try:
+            df_new = pd.DataFrame([new_entry])
             df_new.to_csv(self.path_game_log, mode='a', header=False, index=False)
             print("✅ 成功追加新資料到 game_log.csv")
-            self.reload()
+            if auto_reload:
+                self.reload()
+                # reload 裡面已經有通知了，不需要在這裡重複通知
         except Exception as e:
             print(f"[Error] 無法追加資料: {e}")
+
