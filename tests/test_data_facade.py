@@ -14,5 +14,12 @@ def test_load_game_log():
     assert 'rolling_sum_5' in features.columns
     assert 'wine_type' in features.columns
     print("✅ 測試通過：特徵加工正確完成！")
+
+    # 測試 copy（試圖修改副本，看原資料有沒有被動到）
+    features['test_col'] = 123
+    features2 = facade.get_features()
+    assert 'test_col' not in features2.columns
+
+    print("✅ 測試通過：get_features 正常提供副本且安全！")
 if __name__ == "__main__":
     test_load_game_log()

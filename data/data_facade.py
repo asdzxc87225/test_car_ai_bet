@@ -23,6 +23,7 @@ class DataFacade:
             raise ValueError("尚未載入 game_log 資料，無法建構 features。")
 
     def get_features(self):
+        """取得特徵資料的副本"""
         if self._features is not None:
             return self._features.copy()
         else:
