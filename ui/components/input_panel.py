@@ -1,41 +1,30 @@
-#from data.data_manager import DataManager
+import data
+from data.data_facade import DataFacade
 from PySide6.QtWidgets import (
     QWidget, QLabel, QSpinBox, QHBoxLayout, QVBoxLayout,
     QPushButton, QComboBox
 )
 from PySide6.QtCore import QDateTime
-#from ui.components.hotkey_manager import register_hotkeys
+from ui.components.hotkey_manager import register_hotkeys
 
 
 class InputPanel(QWidget):
     def __init__(self, config):
         super().__init__()
-        '''
         self.config = config
-        self.data_manager = DataManager()
+        data_facade = DataFacade("./data/raw/game_log.csv","./data/models/104900.pkl")
         self.car_names = list(config["bet_vector"]["cars"].values())
-
+        self.df = data_facade.get_game_log()
         self.bets = []
         self.current_step = 20
-        self.current_round = self.data_manager.get_next_round()
+        self.current_round = len(self.df) + 1
 
         self.round_label = QLabel(f"🎯 目前回合數：{self.current_round}")
         self.winner_selector = QComboBox()
 
+        print("setup_ui")
         self.setup_ui()
-        register_hotkeys(self, {
-            "increase": self.increase_bet,
-            "decrease": self.decrease_bet,
-            "clear": self.clear_bets,
-            "submit":self.submit_bet,
-            "winner_select": self.select_winner,
-        })
-        self.installEventFilter(self)
-    def select_winner(self, index):
-        if 0 <= index < self.winner_selector.count():
-            self.winner_selector.setCurrentIndex(index)
-            print(f"🎯 勝者切換為：{self.car_names[index]}")
- 
+
     def setup_ui(self):
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.round_label)
@@ -44,10 +33,8 @@ class InputPanel(QWidget):
         self.setLayout(main_layout)
             # 🔽 加上儲存按鈕
         save_button = QPushButton("儲存資料")
-        save_button.clicked.connect(self.submit_bet)
+        #save_button.clicked.connect(self.submit_bet)
         main_layout.addWidget(save_button)
-
-
     def create_bet_inputs(self):
         layout = QHBoxLayout()
         for _, name in self.config["bet_vector"]["cars"].items():
@@ -60,7 +47,6 @@ class InputPanel(QWidget):
             vbox.addWidget(spin)
             layout.addLayout(vbox)
         return layout
-
     def create_controls(self):
         layout = QHBoxLayout()
 
@@ -83,7 +69,27 @@ class InputPanel(QWidget):
         layout.addLayout(winner_layout)
         return layout
 
+
+'''
+        register_hotkeys(self, {
+            "increase": self.increase_bet,
+            "decrease": self.decrease_bet,
+            "clear": self.clear_bets,
+            "submit":self.submit_bet,
+            "winner_select": self.select_winner,
+        })
+        self.installEventFilter(self)
+'''
+
+'''
+    def select_winner(self, index):
+        if 0 <= index < self.winner_selector.count():
+            self.winner_selector.setCurrentIndex(index)
+            print(f"🎯 勝者切換為：{self.car_names[index]}")
+ 
+
     def set_bet_step(self, step):
+        pass 
         """設定所有 SpinBox 的加減單位"""
         self.current_step = step
         for spin in self.bets:
@@ -91,11 +97,13 @@ class InputPanel(QWidget):
         print(f"🎯 已設定下注單位為：{step}")
 
     def next_round(self):
+        pass 
         """送出資料後回合數自動 +1"""
         self.current_round += 1
         self.round_label.setText(f"🎯 目前回合數：{self.current_round}")
 
     def get_input_data(self):
+        pass 
         time_now = QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
         bets = [spin.value() for spin in self.bets]
         winner_index = self.car_names.index(self.winner_selector.currentText())
@@ -106,10 +114,12 @@ class InputPanel(QWidget):
             "winner": winner_index
         }
     def increase_bet(self, index):
+        pass 
         if 0 <= index < len(self.bets):
             self.bets[index].setValue(self.bets[index].value() + self.current_step)
 
     def decrease_bet(self, index):
+        pass 
         if 0 <= index < len(self.bets):
             self.bets[index].setValue(max(0, self.bets[index].value() - self.current_step))
 
@@ -131,4 +141,4 @@ class InputPanel(QWidget):
 
 
 
-        '''
+'''
