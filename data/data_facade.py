@@ -1,49 +1,30 @@
-# data/data_facade.py
-import os
-import pandas as pd
-from data.Analytics.feature_builder import build_features
-from data.transition_matrix_builder import build_transition_matrix
-
 class DataFacade:
-    def __init__(self):
-        # 設定資料位置（可日後讀設定檔）
-        self.paths = {
-            "game_log": "data/raw/game_log.csv",
-            "q_table": "data/models/final.pkl",
-            "transition_matrix": "data/transition_matrix.csv"
-        }
+    def __init__(self, path_game_log: str, path_q_table: str):
+        self.path_game_log = path_game_log
+        self.path_q_table = path_q_table
+        self._game_log = None
+        self._features = None
+        self._q_table = None
 
-    @staticmethod
-    def load_q_table(path: str) -> pd.DataFrame:
-        """讀取 Q-table 檔案（目前支援 .pkl）"""
-        return pd.read_pickle(path)
+    def load_and_build(self):
+        """讀取 game_log 與 q_table 並加工特徵。"""
+        pass
 
-    def get_q_table(self) -> pd.DataFrame:
-        return pd.read_pickle(self.paths["q_table"])
+    def reload(self):
+        """重新載入資料。"""
+        pass
 
-    def get_q_matrix(self, action: int = 1) -> pd.DataFrame:
-        q_table = self.get_q_table()
-        return q_table[action].unstack()
+    def get_game_log(self):
+        """取得 game_log 副本。"""
+        pass
 
+    def get_features(self):
+        """取得 features 副本。"""
+        pass
 
-    def list_models(self, dir_path="data/models") -> list[str]:
-        return sorted([
-            f for f in os.listdir(dir_path)
-            if f.endswith(".pkl")
-        ])
-
-    def set_game_log(self, filename: str):
-        self.paths["game_log"] = f"data/{filename}"
-
-    def set_q_table(self, filename: str):
-        self.paths["q_table"] = f"data/models/{filename}"
-    def get_game_log(self) -> pd.DataFrame:
-        df = pd.read_csv(self.paths["game_log"])
-        df = build_features(df)  # 👈 加上自動處理
-        return df
-    def get_transition_matrix_from_log(self) -> pd.DataFrame:
-        """從 game_log.csv 建立狀態轉移矩陣"""
-        df = self.get_game_log()
-        matrix = build_transition_matrix(df)
-        return matrix 
-
+    def get_q_table(self):
+        """取得 q_table 副本。"""
+        pass
+if __name__ == "__main__":
+    df = DataFacade("dummy_game_log.csv", "dummy_q_table.csv")
+    print("DataFacade initialized successfully!")
