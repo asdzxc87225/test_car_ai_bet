@@ -1,13 +1,14 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout
 
 from ui.components.input_panel import InputPanel
-from ui.components.display_panel import DisplayPanel
-from ui.pages.ai_control import Ai_Control
-from data.config_loader import load_config
+#from ui.components.display_panel import DisplayPanel
+#from ui.pages.ai_control import Ai_Control
+#from data.config_loader import load_config
 
 class BettingPage(QWidget):
     def __init__(self):
         super().__init__()
+        '''
         self.config = load_config()
 
         self.input_panel = InputPanel(self.config)
@@ -19,4 +20,6 @@ class BettingPage(QWidget):
         layout.addWidget(self.ai_control)
         layout.addWidget(self.display_panel)
         self.setLayout(layout)
+
+        '''
 

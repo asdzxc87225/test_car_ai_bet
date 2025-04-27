@@ -1,18 +1,16 @@
-from data.data_manager import DataManager
+#from data.data_manager import DataManager
 from PySide6.QtWidgets import (
     QWidget, QLabel, QSpinBox, QHBoxLayout, QVBoxLayout,
     QPushButton, QComboBox
 )
 from PySide6.QtCore import QDateTime
-from ui.components.hotkey_manager import register_hotkeys
-
-
-
+#from ui.components.hotkey_manager import register_hotkeys
 
 
 class InputPanel(QWidget):
     def __init__(self, config):
         super().__init__()
+        '''
         self.config = config
         self.data_manager = DataManager()
         self.car_names = list(config["bet_vector"]["cars"].values())
@@ -132,3 +130,5 @@ class InputPanel(QWidget):
     
 
 
+
+        '''
