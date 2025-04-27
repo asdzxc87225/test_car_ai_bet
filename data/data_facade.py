@@ -1,6 +1,8 @@
 import pickle
 import pandas as pd
 from data.feature_builder import FeatureBuilder
+import json
+from datetime import datetime
 
 class DataFacade:
     def __init__(self, path_game_log: str, path_q_table: str):
@@ -64,3 +66,29 @@ class DataFacade:
             return self._q_table
         else:
             raise ValueError("尚未載入 q_table 資料！")
+    def append_game_log(self, new_entry: dict):
+        """追加一筆新下注資料到 game_log.csv，並刷新快取"""
+        if not isinstance(new_entry, dict):
+            raise TypeError("新資料必須是 dict 格式")
+
+        required_fields = ['timestamp', 'round', 'bet', 'winner']
+        for field in required_fields:
+            if field not in new_entry:
+                raise ValueError(f"新資料缺少必要欄位: {field}")
+
+        # 強制 bet 轉成 JSON 字串
+        if isinstance(new_entry['bet'], list):
+            new_entry['bet'] = json.dumps(new_entry['bet'])
+
+        # 強制 timestamp 是字串格式
+        if isinstance(new_entry['timestamp'], datetime):
+            new_entry['timestamp'] = new_entry['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
+
+        df_new = pd.DataFrame([new_entry])
+
+        try:
+            df_new.to_csv(self.path_game_log, mode='a', header=False, index=False)
+            print("✅ 成功追加新資料到 game_log.csv")
+            self.reload()
+        except Exception as e:
+            print(f"[Error] 無法追加資料: {e}")

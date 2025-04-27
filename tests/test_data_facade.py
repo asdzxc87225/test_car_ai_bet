@@ -1,5 +1,4 @@
 from data.data_facade import DataFacade
-
 def test_load_game_log():
     facade = DataFacade("data/raw/game_log.csv", "data/models/104900.pkl")
     df = facade.get_game_log()
@@ -34,8 +33,21 @@ def test_load_game_log():
     # 測試 reload 是否有成功刷新資料（可以簡單用 shape 或 id 來確認）
     assert id(old_game_log) != id(new_game_log)
     assert id(old_features) != id(new_features)
+    '''    print("✅ 測試通過：reload 成功刷新資料！")
+    new_entry = {
+        'timestamp': 000000,   # 或自己產生
+        'round': 1234,
+        'bet': [0, 100, 0, 0, 0, 0, 0, 0],  # 下注100在第1台車
+        'winner': 1,
+    }
 
-    print("✅ 測試通過：reload 成功刷新資料！")
+    facade.append_game_log(new_entry)
+
+    features = facade.get_features()
+    print(features.tail())
+
+    print("✅ 測試通過：成功追加下注資料並更新 features")
+'''
 
 if __name__ == "__main__":
     test_load_game_log()
