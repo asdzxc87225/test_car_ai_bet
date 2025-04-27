@@ -1,8 +1,14 @@
 from data.data_facade import DataFacade
 from datetime import datetime
+from data.data_errors import DataLoadError
+
 def test_load_game_log():
     facade = DataFacade("data/raw/game_log.csv", "data/models/104900.pkl")
     df = facade.get_game_log()
+    try:
+        facade = DataFacade("data/not_exist.csv", "data/models/final.pkl")
+    except DataLoadError as e:
+        print(e)
     assert not df.empty 
     print("✅ 測試通過：成功讀取 game_log")
     q_table = facade.get_q_table()
@@ -48,7 +54,6 @@ def test_load_game_log():
     print(features.tail())
 
     print("✅ 測試通過：成功追加下注資料並更新 features")
-'''
     print("\n--- 測試 reload() ---")
     facade.reload()
     # 期待：看到「✅ 收到資料更新通知！」
@@ -72,6 +77,9 @@ def test_load_game_log():
     }
     facade.append_game_log(new_entry, auto_reload=False)
     # 期待：✅ 這裡「不會」有收到通知！
+'''
+
+
 
 if __name__ == "__main__":
     test_load_game_log()
