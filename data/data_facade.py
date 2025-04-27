@@ -1,5 +1,6 @@
 import pickle
 import pandas as pd
+from data.feature_builder import FeatureBuilder
 
 class DataFacade:
     def __init__(self, path_game_log: str, path_q_table: str):
@@ -9,8 +10,23 @@ class DataFacade:
         self._features = None
         self._q_table = None
 
+
         self._load_game_log()
+        self._build_features()
         self._load_q_table()
+
+    def _build_features(self):
+        """加工特徵資料，快取起來"""
+        if self._game_log is not None:
+            self._features = FeatureBuilder.build_features(self._game_log)
+        else:
+            raise ValueError("尚未載入 game_log 資料，無法建構 features。")
+
+    def get_features(self):
+        if self._features is not None:
+            return self._features.copy()
+        else:
+            raise ValueError("尚未建構 features 資料！")
 
     def _load_game_log(self):
         """從 CSV 讀取 game_log 並緩存"""

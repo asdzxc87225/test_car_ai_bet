@@ -5,5 +5,14 @@ def test_load_game_log():
     df = facade.get_game_log()
     assert not df.empty 
     print("✅ 測試通過：成功讀取 game_log")
+    q_table = facade.get_q_table()
+    print("✅ 測試通過：成功讀取 q_table")
+    features = facade.get_features()
+    print(features.head())
+
+    assert 'diff' in features.columns
+    assert 'rolling_sum_5' in features.columns
+    assert 'wine_type' in features.columns
+    print("✅ 測試通過：特徵加工正確完成！")
 if __name__ == "__main__":
     test_load_game_log()
