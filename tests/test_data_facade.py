@@ -1,4 +1,5 @@
 from data.data_facade import DataFacade
+from datetime import datetime
 def test_load_game_log():
     facade = DataFacade("data/raw/game_log.csv", "data/models/104900.pkl")
     df = facade.get_game_log()
@@ -48,6 +49,29 @@ def test_load_game_log():
 
     print("✅ 測試通過：成功追加下注資料並更新 features")
 '''
+    print("\n--- 測試 reload() ---")
+    facade.reload()
+    # 期待：看到「✅ 收到資料更新通知！」
+
+    print("\n--- 測試 append_game_log(auto_reload=True) ---")
+    new_entry = {
+        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'round': 9999,
+        'bet': [0, 0, 0, 0, 100, 0, 0, 0],
+        'winner': 4,
+    }
+    facade.append_game_log(new_entry, auto_reload=True)
+    # 期待：看到「✅ 收到資料更新通知！」
+
+    print("\n--- 測試 append_game_log(auto_reload=False) ---")
+    new_entry = {
+        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'round': 10000,
+        'bet': [0, 0, 0, 0, 0, 100, 0, 0],
+        'winner': 5,
+    }
+    facade.append_game_log(new_entry, auto_reload=False)
+    # 期待：✅ 這裡「不會」有收到通知！
 
 if __name__ == "__main__":
     test_load_game_log()
