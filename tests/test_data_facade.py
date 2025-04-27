@@ -21,5 +21,21 @@ def test_load_game_log():
     assert 'test_col' not in features2.columns
 
     print("✅ 測試通過：get_features 正常提供副本且安全！")
+        # 修改原本快取
+    old_game_log = facade.get_game_log()
+    old_features = facade.get_features()
+
+    # 模擬外部更新資料（手動 reload）
+    facade.reload()
+
+    new_game_log = facade.get_game_log()
+    new_features = facade.get_features()
+
+    # 測試 reload 是否有成功刷新資料（可以簡單用 shape 或 id 來確認）
+    assert id(old_game_log) != id(new_game_log)
+    assert id(old_features) != id(new_features)
+
+    print("✅ 測試通過：reload 成功刷新資料！")
+
 if __name__ == "__main__":
     test_load_game_log()
