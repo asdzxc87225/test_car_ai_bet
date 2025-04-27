@@ -56,4 +56,6 @@ mark:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/analyze_transition_matrix.py
 test2:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/test_BehaviorAnalyzer.py
+test_data_facade:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./tests/test_data_facade.py
 
