@@ -15,6 +15,11 @@ class DataFacade:
         self._build_features()
         self._load_q_table()
 
+    def reload(self):
+        """重新讀取資料並刷新快取"""
+        self._load_game_log()
+        self._build_features()
+        self._load_q_table()
     def _build_features(self):
         """加工特徵資料，快取起來"""
         if self._game_log is not None:
