@@ -6,15 +6,16 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QDateTime
 from ui.components.hotkey_manager import register_hotkeys
+from datetime import datetime
 
 
 class InputPanel(QWidget):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        data_facade = DataFacade("./data/raw/game_log.csv","./data/models/104900.pkl")
+        self.data_facade = DataFacade("./data/raw/game_log.csv","./data/models/104900.pkl")
         self.car_names = list(config["bet_vector"]["cars"].values())
-        self.df = data_facade.get_game_log()
+        self.df = self.data_facade.get_game_log()
         self.bets = []
         self.current_step = 20
         self.current_round = len(self.df) + 1
@@ -24,6 +25,14 @@ class InputPanel(QWidget):
 
         print("setup_ui")
         self.setup_ui()
+        register_hotkeys(self, {
+            "increase": self.increase_bet,
+            "decrease": self.decrease_bet,
+            "clear": self.clear_bets,
+            "submit":self.submit_bet,
+            "winner_select": self.select_winner,
+        })
+        self.installEventFilter(self)
 
     def setup_ui(self):
         main_layout = QVBoxLayout()
@@ -33,7 +42,7 @@ class InputPanel(QWidget):
         self.setLayout(main_layout)
             # 🔽 加上儲存按鈕
         save_button = QPushButton("儲存資料")
-        #save_button.clicked.connect(self.submit_bet)
+        save_button.clicked.connect(self.submit_bet)
         main_layout.addWidget(save_button)
     def create_bet_inputs(self):
         layout = QHBoxLayout()
@@ -68,25 +77,11 @@ class InputPanel(QWidget):
         layout.addLayout(button_layout)
         layout.addLayout(winner_layout)
         return layout
-
-
-'''
-        register_hotkeys(self, {
-            "increase": self.increase_bet,
-            "decrease": self.decrease_bet,
-            "clear": self.clear_bets,
-            "submit":self.submit_bet,
-            "winner_select": self.select_winner,
-        })
-        self.installEventFilter(self)
-'''
-
-'''
     def select_winner(self, index):
         if 0 <= index < self.winner_selector.count():
             self.winner_selector.setCurrentIndex(index)
             print(f"🎯 勝者切換為：{self.car_names[index]}")
- 
+
 
     def set_bet_step(self, step):
         pass 
@@ -130,15 +125,19 @@ class InputPanel(QWidget):
     def submit_bet(self):
         """提交下注資料，儲存到 DataManager，並自動進入下一回合"""
         data = self.get_input_data()
-        self.data_manager.append(
-            round_num=data["round"],
-            bet=data["bets"],
-            winner=data["winner"]
-        )
+        new_entry = {
+            'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'round': data["round"],
+            'bet': data["bets"],  # 下注100在第1台車
+            'winner': data["winner"],
+            }
+        self.data_facade.append_game_log(new_entry, auto_reload=False)
         self.next_round()
 
-    
 
 
 
-'''
+
+
+
+
