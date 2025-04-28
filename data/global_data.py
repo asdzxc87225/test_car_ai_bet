@@ -24,14 +24,19 @@ class Session:
 
     @classmethod
     def refresh(cls, key: str, **kwargs):
-        """強制刷新 session 中的資料"""
+        model_name = kwargs.get("model_name")
+        if model_name and not model_name.endswith(".pkl"):
+            model_name += ".pkl"  # 這裡正確補好
+
         if key == "game_log":
-            cls._cache[key] = DATA_FACADE.game_log()
+            cls._cache["game_log"] = DATA_FACADE.game_log()
         elif key == "q_table":
-            model_name = kwargs.get("model_name", CONFIG.get("default_model", "q_model_0425_2023.pkl"))
-            cls._cache[key] = DATA_FACADE.q_table(model_name)
+            if model_name:
+                cls._cache["q_table"] = DATA_FACADE.q_table(model_name=model_name)
+            else:
+                cls._cache["q_table"] = DATA_FACADE.q_table()
         else:
-            raise KeyError(f"未知資料類型 {key}")
+            raise ValueError(f"不支援的刷新類型: {key}")
 
     @classmethod
     def clear_all(cls):

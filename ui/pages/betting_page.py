@@ -8,10 +8,8 @@ from data.config_loader import load_config
 class BettingPage(QWidget):
     def __init__(self):
         super().__init__()
-        print("ste")
-        self.config = load_config()
 
-        self.input_panel = InputPanel(self.config)
+        self.input_panel = InputPanel()
         self.ai_control = Ai_Control()
         #self.display_panel = DisplayPanel(self.config)
 

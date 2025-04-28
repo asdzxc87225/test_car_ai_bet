@@ -5,16 +5,17 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QDateTime
 from ui.components.hotkey_manager import register_hotkeys
 from datetime import datetime
-from data.global_data import DATA_FACADE
+from data.global_data import Session
 from data.global_data import CONFIG
+from data.global_data import DATA_FACADE
 
 
 
 class InputPanel(QWidget):
-    def __init__(self, config):
+    def __init__(self):
         super().__init__()
         self.car_names = list(CONFIG["bet_vector"]["cars"].values())
-        self.df = DATA_FACADE.get_game_log()
+        self.df = Session.get("game_log")
         self.bets = []
         self.current_step = 20
         self.current_round = len(self.df) + 1
@@ -22,7 +23,6 @@ class InputPanel(QWidget):
         self.round_label = QLabel(f"🎯 目前回合數：{self.current_round}")
         self.winner_selector = QComboBox()
 
-        print("setup_ui")
         self.setup_ui()
         register_hotkeys(self, {
             "increase": self.increase_bet,
@@ -130,7 +130,7 @@ class InputPanel(QWidget):
             'bet': data["bets"],  # 下注100在第1台車
             'winner': data["winner"],
             }
-        DATA_FACADE.append_game_log(new_entry, auto_reload=False)
+        DATA_FACADE.append_game_log(new_entry)
         self.next_round()
 
 
