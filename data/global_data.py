@@ -3,5 +3,38 @@ from data.data_facade import DataFacade
 from data.config_loader import load_config
 from pathlib import Path
 
-DATA_FACADE = DataFacade("data/raw/game_log.csv",'data/models/q_model_0425_2023.pkl')
+DATA_FACADE = DataFacade(Path("./data"))
 CONFIG = load_config()
+
+class Session:
+    _cache = {}
+
+    @classmethod
+    def get(cls, key: str, **kwargs):
+        """取得 session 中的資料"""
+        if key not in cls._cache:
+            if key == "game_log":
+                cls._cache[key] = DATA_FACADE.game_log()
+            elif key == "q_table":
+                model_name = kwargs.get("model_name", CONFIG.get("default_model", "q_model_0425_2023.pkl"))
+                cls._cache[key] = DATA_FACADE.q_table(model_name)
+            else:
+                raise KeyError(f"未知資料類型 {key}")
+        return cls._cache[key]
+
+    @classmethod
+    def refresh(cls, key: str, **kwargs):
+        """強制刷新 session 中的資料"""
+        if key == "game_log":
+            cls._cache[key] = DATA_FACADE.game_log()
+        elif key == "q_table":
+            model_name = kwargs.get("model_name", CONFIG.get("default_model", "q_model_0425_2023.pkl"))
+            cls._cache[key] = DATA_FACADE.q_table(model_name)
+        else:
+            raise KeyError(f"未知資料類型 {key}")
+
+    @classmethod
+    def clear_all(cls):
+        """清除全部 session cache（可選功能）"""
+        cls._cache.clear()
+

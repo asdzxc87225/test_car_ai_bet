@@ -1,41 +1,84 @@
-import pickle
+# data/data_facade.py
+
 import pandas as pd
-from data.feature_builder import FeatureBuilder
+import pickle
 import json
-from datetime import datetime
-from data.data_errors import DataLoadError, DataFormatError
 from pathlib import Path
+from datetime import datetime
+from data.feature_builder import FeatureBuilder
+from data.data_errors import DataLoadError, DataFormatError
 
 class DataFacade:
-    def __init__(self, path_game_log: str, path_q_table: str):
-        """初始化資料中心，讀取 game_log 與 q_table，建構特徵資料"""
-        self._on_data_updated = []  # 資料更新後的通知 callback 列表
+    def __init__(self, root: Path):
+        """初始化資料中心，設定資料根目錄"""
+        self.root = Path(root)
+        self._cache: dict[str, object] = {}
+        self._on_data_updated = []  # 資料更新通知 callback 列表（目前保留可擴充）
 
-        self.path_game_log = path_game_log
-        self.path_q_table = path_q_table
-        self._game_log = None
-        self._features = None
-        self._q_table = None
-        self._cache = {}
+    # --- 對外資料讀取介面 ---
+    def game_log(self) -> pd.DataFrame:
+        """讀取 game_log"""
+        return self._load_csv("raw/game_log.csv")
 
-        self._load_game_log()
-        self._build_features()
-        self._load_q_table()
+    def q_table(self, model_name: str = "q_model_0425_2023.pkl") -> pd.DataFrame:
+        """讀取指定模型的 Q-Table"""
+        return self._load_pickle(f"models/{model_name}")
+
     def list_models(self) -> list[str]:
-        """列出 models 資料夾下所有 .pkl 檔案名稱"""
-        model_dir = Path("./data/models/")
-        print(f"🔍 掃描資料夾: {model_dir}")
-
+        """列出 models 資料夾下所有 .pkl 模型檔案"""
+        model_dir = self.root / "models"
         if not model_dir.exists():
             return []
-        
-        # 用 glob 抓所有 .pkl 檔案
         pkl_files = list(model_dir.glob("q_model_*.pkl"))
-        models = [pkl_file.stem for pkl_file in pkl_files]  # 注意要取 .stem（檔名不含副檔名）
+        models = [pkl_file.stem for pkl_file in pkl_files]
         return sorted(models)
 
+    def append_game_log(self, new_entry: dict):
+        """追加一筆新下注資料到 game_log.csv（不自動 reload，由 Session 控）"""
+        if not isinstance(new_entry, dict):
+            raise TypeError("新資料必須是 dict 格式")
+
+        required_fields = ['timestamp', 'round', 'bet', 'winner']
+        for field in required_fields:
+            if field not in new_entry:
+                raise DataFormatError(f"新資料缺少必要欄位: {field}")
+
+        if isinstance(new_entry['bet'], list):
+            new_entry['bet'] = json.dumps(new_entry['bet'])
+        if isinstance(new_entry['timestamp'], datetime):
+            new_entry['timestamp'] = new_entry['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
+
+        df_new = pd.DataFrame([new_entry])
+
+        try:
+            df_new.to_csv(self.root / "raw/game_log.csv", mode='a', header=False, index=False)
+            print("✅ 成功追加新資料到 game_log.csv")
+        except Exception as e:
+            raise DataLoadError(f"無法追加資料到 game_log.csv: {e}")
+
+    # --- 資料加工（FeatureBuilder）---
+    def build_features(self, df_game_log: pd.DataFrame) -> pd.DataFrame:
+        """從 game_log 建構特徵欄位"""
+        required_columns = ['timestamp', 'round', 'bet', 'winner']
+        for col in required_columns:
+            if col not in df_game_log.columns:
+                raise DataFormatError(f"game_log 缺少必要欄位：{col}")
+
+        features = FeatureBuilder.build_features(df_game_log)
+        return features
+
+    # --- 快取操作 ---
+    def refresh_cache(self, key: str):
+        """手動清除某個 key 的 cache"""
+        self._cache.pop(key, None)
+
+    def clear_all_cache(self):
+        """清空所有 cache"""
+        self._cache.clear()
+
+    # --- 資料更新通知（目前保留，可用於未來 UI 主動更新）---
     def register_on_data_updated(self, callback: callable):
-        """外部模組可以註冊資料更新完成時要通知的函數"""
+        """註冊資料更新通知的 callback"""
         if callable(callback):
             self._on_data_updated.append(callback)
         else:
@@ -49,93 +92,17 @@ class DataFacade:
             except Exception as e:
                 print(f"[Error] 通知資料更新失敗: {e}")
 
-    def reload(self):
-        """重新讀取資料並刷新快取（game_log, features, q_table）"""
-        self._load_game_log()
-        self._build_features()
-        self._load_q_table()
-        self._notify_data_updated()
+    # --- 內部通用私有方法 ---
+    def _load_csv(self, rel_path: str) -> pd.DataFrame:
+        """從 cache 或磁碟讀取 CSV 檔"""
+        if rel_path not in self._cache:
+            self._cache[rel_path] = pd.read_csv(self.root / rel_path)
+        return self._cache[rel_path]
 
-    def _build_features(self):
-        """加工特徵資料，快取起來"""
-        if self._game_log is None:
-            raise DataLoadError("尚未載入 game_log 資料，無法建構 features。")
-        
-        # 檢查必要欄位是否存在
-        required_columns = ['timestamp', 'round', 'bet', 'winner']
-        for col in required_columns:
-            if col not in self._game_log.columns:
-                raise DataFormatError(f"game_log 缺少必要欄位：{col}")
-
-        self._features = FeatureBuilder.build_features(self._game_log)
-
-    def _load_game_log(self):
-        """從 CSV 讀取 game_log 並快取"""
-        try:
-            self._game_log = pd.read_csv(self.path_game_log)
-        except FileNotFoundError:
-            raise DataLoadError(f"找不到 game_log 檔案：{self.path_game_log}")
-        except Exception as e:
-            raise DataLoadError(f"讀取 game_log 時發生錯誤：{e}")
-
-    def _load_q_table(self):
-        """從 pickle 檔案讀取 q_table 並快取"""
-        try:
-            with open(self.path_q_table, "rb") as f:
-                self._q_table = pickle.load(f)
-        except FileNotFoundError:
-            raise DataLoadError(f"找不到 q_table 檔案：{self.path_q_table}")
-        except Exception as e:
-            raise DataLoadError(f"讀取 q_table 時發生錯誤：{e}")
-
-    def get_features(self):
-        """取得特徵資料的副本（防止外部污染）"""
-        if self._features is not None:
-            return self._features.copy()
-        else:
-            raise DataLoadError("尚未建構 features 資料！")
-
-    def get_game_log(self):
-        """取得 game_log 的副本"""
-        if self._game_log is not None:
-            return self._game_log.copy()
-        else:
-            raise DataLoadError("尚未載入 game_log 資料！")
-
-    def get_q_table(self):
-        """取得 q_table 的副本（DataFrame）或直接回傳（dict）"""
-        if self._q_table is not None:
-            if hasattr(self._q_table, "copy"):
-                return self._q_table.copy()
-            return self._q_table
-        else:
-            raise DataLoadError("尚未載入 q_table 資料！")
-
-    def append_game_log(self, new_entry: dict, auto_reload: bool = True):
-        """追加一筆新下注資料到 game_log.csv，可選擇是否自動刷新快取"""
-        if not isinstance(new_entry, dict):
-            raise TypeError("新資料必須是 dict 格式")
-
-        required_fields = ['timestamp', 'round', 'bet', 'winner']
-        for field in required_fields:
-            if field not in new_entry:
-                raise DataFormatError(f"新資料缺少必要欄位: {field}")
-
-        # 強制 bet 轉成 JSON 字串格式
-        if isinstance(new_entry['bet'], list):
-            new_entry['bet'] = json.dumps(new_entry['bet'])
-
-        # 強制 timestamp 轉成標準字串格式
-        if isinstance(new_entry['timestamp'], datetime):
-            new_entry['timestamp'] = new_entry['timestamp'].strftime("%Y-%m-%d %H:%M:%S")
-
-        df_new = pd.DataFrame([new_entry])
-
-        try:
-            df_new.to_csv(self.path_game_log, mode='a', header=False, index=False)
-            print("✅ 成功追加新資料到 game_log.csv")
-            if auto_reload:
-                self.reload()
-        except Exception as e:
-            raise DataLoadError(f"無法追加資料到 game_log.csv: {e}")
+    def _load_pickle(self, rel_path: str):
+        """從 cache 或磁碟讀取 pickle 檔"""
+        if rel_path not in self._cache:
+            with open(self.root / rel_path, "rb") as f:
+                self._cache[rel_path] = pickle.load(f)
+        return self._cache[rel_path]
 
