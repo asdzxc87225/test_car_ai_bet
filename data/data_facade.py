@@ -4,6 +4,7 @@ from data.feature_builder import FeatureBuilder
 import json
 from datetime import datetime
 from data.data_errors import DataLoadError, DataFormatError
+from pathlib import Path
 
 class DataFacade:
     def __init__(self, path_game_log: str, path_q_table: str):
@@ -15,10 +16,23 @@ class DataFacade:
         self._game_log = None
         self._features = None
         self._q_table = None
+        self._cache = {}
 
         self._load_game_log()
         self._build_features()
         self._load_q_table()
+    def list_models(self) -> list[str]:
+        """列出 models 資料夾下所有 .pkl 檔案名稱"""
+        model_dir = Path("./data/models/")
+        print(f"🔍 掃描資料夾: {model_dir}")
+
+        if not model_dir.exists():
+            return []
+        
+        # 用 glob 抓所有 .pkl 檔案
+        pkl_files = list(model_dir.glob("q_model_*.pkl"))
+        models = [pkl_file.stem for pkl_file in pkl_files]  # 注意要取 .stem（檔名不含副檔名）
+        return sorted(models)
 
     def register_on_data_updated(self, callback: callable):
         """外部模組可以註冊資料更新完成時要通知的函數"""
