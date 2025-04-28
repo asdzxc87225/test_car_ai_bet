@@ -4,6 +4,11 @@ from typing import Any, Hashable
 import pandas as pd
 import pickle
 import logging
+from data.global_data import Session
+from data.feature_builder import  FeatureBuilder
+from data.global_data import CONFIG
+from data.global_data import DATA_FACADE
+
 #from data.game_log_loader import load_game_log  # 🆕 我們之後會建立
 #from data.q_table_manager import load_q_table   # 🆕 我們之後會建立
 
@@ -34,17 +39,17 @@ def _action_by_row_max(df: pd.DataFrame | pd.Series) -> int:
 
 # ---------- AI 模型：Q 表預測 ----------
 class AIPredictor:
-    def __init__(self, q_table: pd.DataFrame, data_facade, model_name: str = "未知模型"):
+    def __init__(self, q_table: pd.DataFrame, model_name: str = "未知模型"):
         if isinstance(q_table, dict):
             q_table = pd.DataFrame.from_dict(q_table, orient="index")
             q_table.columns = [0, 1]
         self.q_table = q_table
-        self.data_facade = data_facade
         self.model_name = model_name
 
     def predict(self):
         """回傳 (suggestion:int, state tuple, last5_df)"""
-        df = self.data_facade.get_game_log()
+        df = Session.get('game_log')
+        df = FeatureBuilder.build_features(df)
 
         last5 = df.tail(5)
 
