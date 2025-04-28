@@ -1,5 +1,3 @@
-import data
-from data.data_facade import DataFacade
 from PySide6.QtWidgets import (
     QWidget, QLabel, QSpinBox, QHBoxLayout, QVBoxLayout,
     QPushButton, QComboBox
@@ -7,15 +5,16 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QDateTime
 from ui.components.hotkey_manager import register_hotkeys
 from datetime import datetime
+from data.global_data import DATA_FACADE
+from data.global_data import CONFIG
+
 
 
 class InputPanel(QWidget):
     def __init__(self, config):
         super().__init__()
-        self.config = config
-        self.data_facade = DataFacade("./data/raw/game_log.csv","./data/models/104900.pkl")
-        self.car_names = list(config["bet_vector"]["cars"].values())
-        self.df = self.data_facade.get_game_log()
+        self.car_names = list(CONFIG["bet_vector"]["cars"].values())
+        self.df = DATA_FACADE.get_game_log()
         self.bets = []
         self.current_step = 20
         self.current_round = len(self.df) + 1
@@ -46,7 +45,7 @@ class InputPanel(QWidget):
         main_layout.addWidget(save_button)
     def create_bet_inputs(self):
         layout = QHBoxLayout()
-        for _, name in self.config["bet_vector"]["cars"].items():
+        for _, name in CONFIG["bet_vector"]["cars"].items():
             vbox = QVBoxLayout()
             vbox.addWidget(QLabel(name))
             spin = QSpinBox()
@@ -131,7 +130,7 @@ class InputPanel(QWidget):
             'bet': data["bets"],  # 下注100在第1台車
             'winner': data["winner"],
             }
-        self.data_facade.append_game_log(new_entry, auto_reload=False)
+        DATA_FACADE.append_game_log(new_entry, auto_reload=False)
         self.next_round()
 
 
