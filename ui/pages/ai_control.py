@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
 )
 from ui.components.hotkey_manager import register_hotkeys
 from core.ai_action import AIPredictor
-from data.data_facade import DataFacade
+from data.global_data import DATA_FACADE
 
 MODEL_DIR = Path("data/models")
 DATA_DIR = Path("data")
@@ -22,10 +22,10 @@ class Ai_Control(QWidget):
             "ai_run": self.on_predict,
         })
         # ----------------- AI Agent -----------------
-        self.data = DataFacade()
+        self.data = DATA_FACADE
         self.model_list = self.data.list_models()
         self.model_name = self.model_list[0]
-        self.data.set_q_table(self.model_name)
+        print(self.model_name)
         q_table = self.data.get_q_table()
         self.agent = AIPredictor(q_table, self.data, model_name=self.model_name)
 

@@ -1,29 +1,28 @@
-from data.data_manager import DataManager
 from PySide6.QtWidgets import (
     QWidget, QLabel, QSpinBox, QHBoxLayout, QVBoxLayout,
     QPushButton, QComboBox
 )
 from PySide6.QtCore import QDateTime
 from ui.components.hotkey_manager import register_hotkeys
-
-
+from datetime import datetime
+from data.global_data import DATA_FACADE
+from data.global_data import CONFIG
 
 
 
 class InputPanel(QWidget):
     def __init__(self, config):
         super().__init__()
-        self.config = config
-        self.data_manager = DataManager()
-        self.car_names = list(config["bet_vector"]["cars"].values())
-
+        self.car_names = list(CONFIG["bet_vector"]["cars"].values())
+        self.df = DATA_FACADE.get_game_log()
         self.bets = []
         self.current_step = 20
-        self.current_round = self.data_manager.get_next_round()
+        self.current_round = len(self.df) + 1
 
         self.round_label = QLabel(f"🎯 目前回合數：{self.current_round}")
         self.winner_selector = QComboBox()
 
+        print("setup_ui")
         self.setup_ui()
         register_hotkeys(self, {
             "increase": self.increase_bet,
@@ -33,11 +32,7 @@ class InputPanel(QWidget):
             "winner_select": self.select_winner,
         })
         self.installEventFilter(self)
-    def select_winner(self, index):
-        if 0 <= index < self.winner_selector.count():
-            self.winner_selector.setCurrentIndex(index)
-            print(f"🎯 勝者切換為：{self.car_names[index]}")
- 
+
     def setup_ui(self):
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.round_label)
@@ -48,11 +43,9 @@ class InputPanel(QWidget):
         save_button = QPushButton("儲存資料")
         save_button.clicked.connect(self.submit_bet)
         main_layout.addWidget(save_button)
-
-
     def create_bet_inputs(self):
         layout = QHBoxLayout()
-        for _, name in self.config["bet_vector"]["cars"].items():
+        for _, name in CONFIG["bet_vector"]["cars"].items():
             vbox = QVBoxLayout()
             vbox.addWidget(QLabel(name))
             spin = QSpinBox()
@@ -62,7 +55,6 @@ class InputPanel(QWidget):
             vbox.addWidget(spin)
             layout.addLayout(vbox)
         return layout
-
     def create_controls(self):
         layout = QHBoxLayout()
 
@@ -84,8 +76,14 @@ class InputPanel(QWidget):
         layout.addLayout(button_layout)
         layout.addLayout(winner_layout)
         return layout
+    def select_winner(self, index):
+        if 0 <= index < self.winner_selector.count():
+            self.winner_selector.setCurrentIndex(index)
+            print(f"🎯 勝者切換為：{self.car_names[index]}")
+
 
     def set_bet_step(self, step):
+        pass 
         """設定所有 SpinBox 的加減單位"""
         self.current_step = step
         for spin in self.bets:
@@ -93,11 +91,13 @@ class InputPanel(QWidget):
         print(f"🎯 已設定下注單位為：{step}")
 
     def next_round(self):
+        pass 
         """送出資料後回合數自動 +1"""
         self.current_round += 1
         self.round_label.setText(f"🎯 目前回合數：{self.current_round}")
 
     def get_input_data(self):
+        pass 
         time_now = QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
         bets = [spin.value() for spin in self.bets]
         winner_index = self.car_names.index(self.winner_selector.currentText())
@@ -108,10 +108,12 @@ class InputPanel(QWidget):
             "winner": winner_index
         }
     def increase_bet(self, index):
+        pass 
         if 0 <= index < len(self.bets):
             self.bets[index].setValue(self.bets[index].value() + self.current_step)
 
     def decrease_bet(self, index):
+        pass 
         if 0 <= index < len(self.bets):
             self.bets[index].setValue(max(0, self.bets[index].value() - self.current_step))
 
@@ -122,13 +124,19 @@ class InputPanel(QWidget):
     def submit_bet(self):
         """提交下注資料，儲存到 DataManager，並自動進入下一回合"""
         data = self.get_input_data()
-        self.data_manager.append(
-            round_num=data["round"],
-            bet=data["bets"],
-            winner=data["winner"]
-        )
+        new_entry = {
+            'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'round': data["round"],
+            'bet': data["bets"],  # 下注100在第1台車
+            'winner': data["winner"],
+            }
+        DATA_FACADE.append_game_log(new_entry, auto_reload=False)
         self.next_round()
 
-    
+
+
+
+
+
 
 

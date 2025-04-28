@@ -4,8 +4,8 @@ from typing import Any, Hashable
 import pandas as pd
 import pickle
 import logging
-from data.game_log_loader import load_game_log  # 🆕 我們之後會建立
-from data.q_table_manager import load_q_table   # 🆕 我們之後會建立
+#from data.game_log_loader import load_game_log  # 🆕 我們之後會建立
+#from data.q_table_manager import load_q_table   # 🆕 我們之後會建立
 
 SMALL_CARS = {0, 1, 2, 3}
 
