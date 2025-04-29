@@ -67,18 +67,8 @@ class QTableTab(QWidget):
         return group
 
     def _load_model_list(self):
-        model_dir = Path("data/models/")
-        if not model_dir.exists():
-            QMessageBox.warning(self, "錯誤", "找不到 models/ 資料夾")
-            return
+        self.reload_model_list()
 
-        self.model_selector.clear()
-        self.model_selector.addItem("請選擇模型")
-
-        for file in model_dir.glob("*.pkl"):
-            self.model_selector.addItem(file.name, userData=str(file))
-
-        self.model_selector.currentIndexChanged.connect(self._on_model_selected)
 
     def _on_model_selected(self, index):
         if index <= 0:
@@ -133,3 +123,27 @@ class QTableTab(QWidget):
 
     def _warn_no_q_table(self):
         QMessageBox.warning(self, "錯誤", "請先載入 Q-table")
+    def reload_model_list(self):
+        model_dir = Path("data/models/")
+        if not model_dir.exists():
+            QMessageBox.warning(self, "錯誤", "找不到 models/ 資料夾")
+            return
+
+        self.model_selector.blockSignals(True)  # 暫時停止觸發信號
+        current_selection = self.model_selector.currentText()
+
+        self.model_selector.clear()
+        self.model_selector.addItem("請選擇模型")
+
+        files = sorted(model_dir.glob("*.pkl"), key=lambda f: f.stat().st_mtime, reverse=True)
+        for file in files:
+            self.model_selector.addItem(file.name, userData=str(file))
+
+        # 嘗試還原選擇
+        idx = self.model_selector.findText(current_selection)
+        if idx >= 0:
+            self.model_selector.setCurrentIndex(idx)
+
+        self.model_selector.blockSignals(False)
+        self.model_selector.currentIndexChanged.connect(self._on_model_selected)
+
