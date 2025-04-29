@@ -1,12 +1,13 @@
 # core/q_trainer.py
 
 from pathlib import Path
-from data.data_facade import DataFacade
 from agent.trainer import QLearner
+import threading
+from data.global_data import Session
+
 
 
 def train_model(model_name, episodes, epsilon, alpha, gamma, on_step=None, save=True):
-    import threading
     print(f"[train_model] 執行緒：{threading.current_thread().name}")
     """
     執行 Q-learning 訓練流程，支援進度回報與模型儲存。
@@ -25,7 +26,7 @@ def train_model(model_name, episodes, epsilon, alpha, gamma, on_step=None, save=
     """
 
     # 1️⃣ 讀取資料
-    df = DataFacade().get_game_log()
+    df = Session.get("game_log")
 
     # 2️⃣ 建立 QLearner
     learner = QLearner(epsilon=epsilon, alpha=alpha, gamma=gamma)

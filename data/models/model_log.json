@@ -262,5 +262,65 @@
     "total_reward": 320,
     "max_drawdown": 640,
     "timestamp": "2025-04-25T22:17:30.612908"
+  },
+  {
+    "model_name": "q_model_0429_1012.pkl",
+    "episodes": 1000,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": -0.02,
+    "hit_rate": 0.0,
+    "total_reward": -100,
+    "max_drawdown": 100,
+    "timestamp": "2025-04-29T10:12:40.625286"
+  },
+  {
+    "model_name": "q_model_0429_1012.pkl",
+    "episodes": 1,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": -20.0,
+    "hit_rate": 0.0,
+    "total_reward": -100,
+    "max_drawdown": 100,
+    "timestamp": "2025-04-29T10:13:02.407733"
+  },
+  {
+    "model_name": "q_model_0429_1012.pkl",
+    "episodes": 10,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": -2.0,
+    "hit_rate": 0.0,
+    "total_reward": -100,
+    "max_drawdown": 100,
+    "timestamp": "2025-04-29T10:13:06.515503"
+  },
+  {
+    "model_name": "q_model_0429_1012.pkl",
+    "episodes": 100,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": -0.2,
+    "hit_rate": 0.0,
+    "total_reward": -100,
+    "max_drawdown": 100,
+    "timestamp": "2025-04-29T10:13:10.249395"
+  },
+  {
+    "model_name": "q_model_0429_1012.pkl",
+    "episodes": 1000,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": -0.02,
+    "hit_rate": 0.0,
+    "total_reward": -100,
+    "max_drawdown": 100,
+    "timestamp": "2025-04-29T10:13:15.418635"
   }
 ]
