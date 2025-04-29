@@ -7,6 +7,6 @@ class FeatureBuilder:
         df = game_log.copy()
         df['wine_type'] = (df['winner'] < 4).astype(int)
         df['diff'] = df['wine_type'].diff()
-        df['rolling_sum_5'] = df['diff'].rolling(window=5, min_periods=1).sum()
+        df['rolling_sum_5'] = df['wine_type'].rolling(window=5, min_periods=1).sum()
         return df
 
