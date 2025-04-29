@@ -32,10 +32,12 @@ class QTableTab(QWidget):
     def _create_control_panel(self):
         group = QGroupBox("資料控制區")
         layout = QHBoxLayout()
-
+        self.reload_button = QPushButton("刷新列表")
         self.model_selector = QComboBox()
         self.model_selector.addItem("選擇模型")
+        self.reload_button.clicked.connect(self.reload_model_list)
         layout.addWidget(QLabel("Q-table 模型："))
+        layout.addWidget(self.reload_button)
         layout.addWidget(self.model_selector)
 
 
