@@ -15,11 +15,13 @@ plt.rcParams['font.family'] = [
 ]
 
 
-from data.config_loader import load_config
-from data.data_facade import DataFacade
 from data.Analytics.behavior_analyzer import BehaviorAnalyzer
 from data.Analytics import behavior_plotter as bp
 from data.config_loader import load_config
+from data.global_data import  DATA_FACADE
+from data.global_data import CONFIG
+from data.global_data import  Session
+from data.feature_builder import FeatureBuilder
 
 
 class BehaviorTab(QWidget):
@@ -87,11 +89,9 @@ class BehaviorTab(QWidget):
     def load_and_analyze_data(self):
         try:
             # 讀取設定與資料
-            config = load_config()
-            data_center = DataFacade()
             
             # TODO: 若支援多檔案可加入 self.file_selector.currentText()
-            df = data_center.get_game_log()
+            df = Session.get("game_log")
             max_round = int(df["round"].max())
             self.start_round.setMaximum(max_round)
             self.end_round.setMaximum(max_round)
@@ -104,7 +104,8 @@ class BehaviorTab(QWidget):
                 df = df[(df["round"] >= start) & (df["round"] <= end if end > 0 else df["round"].max())]
 
             # 執行分析
-            analyzer = BehaviorAnalyzer(df, config)
+            df = FeatureBuilder.build_features(df)
+            analyzer = BehaviorAnalyzer(df, CONFIG)
             self.result_df = analyzer.calc_profit_win_rate()
 
             print("✅ 資料載入與分析完成，資料筆數：", len(self.result_df))
@@ -137,8 +138,8 @@ class BehaviorTab(QWidget):
         self._render_figure(fig)
 
     def plot_state_heat(self):
-        if self.result_df is None:
-            print("⚠️ 尚未載入資料")
+        if self.result_df is None or self.result_df.empty:
+            print("⚠️ 尚未載入資料或資料為空")
             return
         self.ax.clear()
         fig = bp.plot_state_reward_heatmap(self.result_df)
