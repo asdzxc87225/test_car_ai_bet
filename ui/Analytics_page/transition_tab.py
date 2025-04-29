@@ -5,15 +5,15 @@ from PySide6.QtWidgets import (
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-from data.transition_analyzer import TransitionAnalyzer
-from data.transition_plotter import TransitionPlotter
-from data.data_facade import DataFacade
-from data.transition_matrix_builder import build_transition_matrix
+from data.Analytics.transition_analyzer import TransitionAnalyzer
+from data.Analytics.transition_plotter import TransitionPlotter
+from data.global_data import  DATA_FACADE
+from data.global_data import  Session
 
 class TransitionTab(QWidget):
     def __init__(self):
         super().__init__()
-        self.data_center = DataFacade()
+        self.data_center = DATA_FACADE
         self.analyzer = None
         self.plotter = TransitionPlotter()
 
