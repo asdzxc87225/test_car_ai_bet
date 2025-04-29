@@ -7,6 +7,7 @@ from PySide6.QtCore import QThread, QTimer, QMetaObject, Qt, Q_ARG
 from datetime import datetime
 from controllers.model_training_controller import TrainerWorker
 from core import model_logger
+import threading
 
 
 class TrainingPage(QWidget):
@@ -32,13 +33,16 @@ class TrainingPage(QWidget):
 
         self.train_button = QPushButton("開始訓練")
         self.train_button.clicked.connect(self._on_train_clicked)
+        self.stop_button = QPushButton("停止訓練")
+        self.stop_button.setEnabled(False)
+        self.stop_button.clicked.connect(self._on_stop_clicked)
 
         layout.addRow("模型名稱：", self.input_model_name)
         layout.addRow("訓練輪數：", self.input_episodes)
         layout.addRow("ε 探索率：", self.input_epsilon)
         layout.addRow("α 學習率：", self.input_alpha)
         layout.addRow("γ 折扣因子：", self.input_gamma)
-        layout.addRow(self.train_button)
+        layout.addRow(self.train_button, self.stop_button)
 
         group.setLayout(layout)
         return group
@@ -64,8 +68,8 @@ class TrainingPage(QWidget):
 
     def _on_train_clicked(self):
         try:
-            import threading
             print(f"[on_train_finished] 執行緒：{threading.current_thread().name}")
+            self.stop_button.setEnabled(True)
             model_name = self.input_model_name.text()
             episodes = int(self.input_episodes.text())
             epsilon = float(self.input_epsilon.text())
@@ -85,6 +89,7 @@ class TrainingPage(QWidget):
 # ✅ 進度與完成訊號
             self.training_worker.progress.connect(self._append_log)
             self.training_worker.finished.connect(lambda result: self._on_train_finished_defer(result))
+            self.training_worker.finished.connect(self._safe_cleanup)  # 🔥 加這行，自己收尾
             self.training_worker.finished.connect(self.training_thread.quit)
             self.training_worker.finished.connect(self.training_worker.deleteLater)
             self.training_thread.finished.connect(self.training_thread.deleteLater)
@@ -98,10 +103,22 @@ class TrainingPage(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "錯誤", f"訓練失敗：{e}")
 
+    def _safe_cleanup(self):
+        print("⚡ 收尾：quit thread")
+        self.training_thread.quit()
+        self.training_thread.wait()  # 🔥 等它完全結束
+        print("⚡ 收尾：thread 完成，開始刪除")
+        self.training_thread.deleteLater()
+        self.train_button.setEnabled(True)
+        self.stop_button.setEnabled(False)
     def _on_train_finished_defer(self, result):
         QTimer.singleShot(0, lambda: self._on_train_finished(result))
     def _on_train_finished(self, result):
         self.train_button.setEnabled(True)
+
+        if not isinstance(result, dict):
+            QMessageBox.critical(self, "錯誤", f"訓練結果格式錯誤，應該是 dict，實際收到 {type(result).__name__}")
+            return
 
         model_name = self.input_model_name.text()
 
@@ -124,4 +141,9 @@ class TrainingPage(QWidget):
         self.log_display.append(
             f"✅ 完成訓練：ROI={record['roi']:.3f} 命中率={record['hit_rate']:.2%}\n"
         )
+    def _on_stop_clicked(self):
+        if hasattr(self, 'training_worker') and self.training_worker is not None:
+            self.training_worker.abort()
+            self.stop_button.setEnabled(False)  # 禁止重複點
+            self._append_log("⚡ 已送出停止訓練請求...")
 
