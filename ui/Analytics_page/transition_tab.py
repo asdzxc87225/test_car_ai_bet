@@ -5,15 +5,17 @@ from PySide6.QtWidgets import (
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-from data.transition_analyzer import TransitionAnalyzer
-from data.transition_plotter import TransitionPlotter
-from data.data_facade import DataFacade
-from data.transition_matrix_builder import build_transition_matrix
+from data.Analytics.transition_analyzer import TransitionAnalyzer
+from data.Analytics.transition_plotter import TransitionPlotter
+from data.Analytics.transition_matrix_builder import build_transition_matrix
+from data.global_data import  DATA_FACADE
+from data.global_data import  Session
+from data.feature_builder import FeatureBuilder
 
 class TransitionTab(QWidget):
     def __init__(self):
         super().__init__()
-        self.data_center = DataFacade()
+        self.data_center = DATA_FACADE
         self.analyzer = None
         self.plotter = TransitionPlotter()
 
@@ -70,7 +72,9 @@ class TransitionTab(QWidget):
         self.setLayout(main_layout)
     def load_and_analyze(self):
         try:
-            df_matrix = self.data_center.get_transition_matrix_from_log()
+            df_log = Session.get("game_log")  # ← 改成從 Session 拿
+            features = FeatureBuilder.build_features(df_log)  # 2. 做特徵工程
+            df_matrix = build_transition_matrix(features)  # 3. 再建轉移矩陣
             self.analyzer = TransitionAnalyzer(df_matrix)
             self.plotter = TransitionPlotter()
             print("✅ Transition matrix loaded.")
