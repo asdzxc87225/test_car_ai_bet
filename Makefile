@@ -58,4 +58,6 @@ test2:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/test_BehaviorAnalyzer.py
 test_data_facade:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./tests/test_data_facade.py
+test_data_classifier:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./tests/test_data_classifier.py
 
