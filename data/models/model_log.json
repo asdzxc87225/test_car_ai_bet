@@ -46,5 +46,17 @@
     "total_reward": 60,
     "max_drawdown": 640,
     "timestamp": "2025-05-01T11:41:59.443400"
+  },
+  {
+    "model_name": "q_model_0501_1324.pkl",
+    "episodes": 1000,
+    "epsilon": 0.9,
+    "alpha": 0.1,
+    "gamma": 0.95,
+    "roi": 0.01499531396438613,
+    "hit_rate": 0.757513277100906,
+    "total_reward": 240,
+    "max_drawdown": 600,
+    "timestamp": "2025-05-01T13:24:21.254216"
   }
 ]
