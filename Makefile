@@ -60,6 +60,9 @@ test_data_facade:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./tests/test_data_facade.py
 test_data_classifier:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./tests/test_data_classifier.py
+test_q_table_manager:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./tests/test_q_table_manager.py
+	PYTHONPATH=$(PYTHONPATH) pytest ./tests/test_q_table_manager.py
 run_data_entropy_plotter:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./data/Analytics/entropy_plotter.py
 run_data_entropy_analyzer:

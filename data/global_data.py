@@ -17,7 +17,9 @@ class Session:
                 cls._cache[key] = DATA_FACADE.game_log()
             elif key == "q_table":
                 model_name = kwargs.get("model_name", CONFIG.get("default_model", "q_model_0425_2023.pkl"))
-                cls._cache[key] = DATA_FACADE.q_table(model_name)
+                raw_q = DATA_FACADE.q_table(model_name)
+                q_table = QTableManager().from_dict(raw_q)
+                cls._cache[key] = q_table
             else:
                 raise KeyError(f"未知資料類型 {key}")
         return cls._cache[key]
