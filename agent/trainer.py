@@ -1,9 +1,13 @@
 # agent/trainer.py
 
+import json
 import pickle
 import numpy as np
 from pathlib import Path
 import random
+import pandas as pd
+from scipy.special import softmax
+
 
 class QLearner:
     def __init__(self, epsilon=0.9, alpha=0.1, gamma=0.95):
@@ -21,6 +25,12 @@ class QLearner:
 
     def _get_state(self, row):
         return (row.get('diff', 0), row.get('rolling_sum_5', 0))
+    @staticmethod
+    def calculate_entropy(q_values: np.ndarray) -> float:
+        """根據 Q 值計算 softmax entropy"""
+        probs = softmax(q_values)
+        return -np.sum(probs * np.log(probs + 1e-8))  # 防止 log(0)
+
 
     def _choose_action(self, state):
         if state not in self.q_table:
@@ -46,6 +56,8 @@ class QLearner:
 
     def train(self, df, episodes=1000, on_step=None, should_abort=None):
         self.aborted = False
+        entropy_log = []
+        self.q_table = {}
 
         total_hits = 0
         total_bets = 0
@@ -90,10 +102,28 @@ class QLearner:
 
                 idx = next_idx
                 steps += 1
+                q_values = np.array(self.q_table[state])
+                entropy = QLearner.calculate_entropy(q_values)
+
+                entropy_log.append({
+                    "round": idx - 1,
+                    "state": str(state),
+                    "entropy": entropy,
+                    "action": action,
+                    "reward": reward,
+                    "q_values": list(q_values),
+                })
+
 
         self.total_reward = cumulative_reward
         self.roi = cumulative_reward / total_bets if total_bets else 0
         self.hit_rate = total_hits / total_bets if total_bets else 0
+
+        df_ = pd.DataFrame(entropy_log)
+        Path("logs").mkdir(parents=True, exist_ok=True)
+        df_.to_csv("logs/entropy_data.csv", index=False)
+        print(f"[INFO] Entropy log saved: {len(df_)} entries.")
+
 
         if not self.aborted and on_step:
             on_step("✅ 訓練完成")

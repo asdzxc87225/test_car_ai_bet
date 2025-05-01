@@ -49,16 +49,26 @@ class ModelLogTab(QWidget):
 
     def _load_logs(self):
         log_path = Path("data/models/model_log.json")
-        if not log_path.exists():
-            return
 
-        with open(log_path, "r", encoding="utf-8") as f:
-            logs = json.load(f)
+        # 若檔案不存在 → 自動建立空 JSON 陣列
+        if not log_path.exists():
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            log_path.write_text("[]", encoding="utf-8")
+            print(f"[INFO] 自動建立空的 model_log.json")
+
+        try:
+            with open(log_path, "r", encoding="utf-8") as f:
+                logs = json.load(f)
+        except json.JSONDecodeError:
+            print(f"[ERROR] model_log.json 格式錯誤，強制初始化為空")
+            logs = []
+            log_path.write_text("[]", encoding="utf-8")
 
         self.table.setRowCount(0)
         self.table.setRowCount(len(logs))
         for row, entry in enumerate(reversed(logs)):  # 最新在最上面
             self._insert_row(row, entry)
+
 
     def _insert_row(self, row, entry):
         for col, (key, _) in enumerate(self.columns):
