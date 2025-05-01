@@ -29,6 +29,7 @@ class Session:
             model_name += ".pkl"  # 這裡正確補好
 
         if key == "game_log":
+            DATA_FACADE.refresh_cache("raw/game_log.csv")
             cls._cache["game_log"] = DATA_FACADE.game_log()
         elif key == "q_table":
             if model_name:

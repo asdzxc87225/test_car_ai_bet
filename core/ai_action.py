@@ -51,9 +51,11 @@ class AIPredictor:
         self.entropy_threshold = 0.3  # 可調整參數
     def predict(self):
         """回傳 (suggestion:int, state tuple, last5_df)"""
-        df = Session.get('game_log')
+        Session.refresh("game_log")
+        df = Session.get("game_log")
         df = FeatureBuilder.build_features(df)
         last5 = df.tail(5)
+        print(last5)
 
         wine_type, diff, rsum = map(int, last5.iloc[-1][["wine_type", "diff", "rolling_sum_5"]])
         state = (diff, rsum)
