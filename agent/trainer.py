@@ -78,6 +78,13 @@ class QLearner:
             steps = 0
             fail_count = 0
             cumulative_reward = 0
+            row = df.iloc[idx]
+            state = self._get_state(row)
+            action = self._choose_action(state)
+            reward = self._get_reward(row, action)
+            next_idx = (idx + 1) % n_data
+            next_row = df.iloc[next_idx]
+            next_state = self._get_state(next_row)
 
             while steps < step_limit and fail_count < MAX_FAIL:
                 row = df.iloc[idx]
@@ -102,17 +109,17 @@ class QLearner:
 
                 idx = next_idx
                 steps += 1
-                q_values = np.array(self.q_table[state])
-                entropy = QLearner.calculate_entropy(q_values)
-
-                entropy_log.append({
-                    "round": idx - 1,
-                    "state": str(state),
-                    "entropy": entropy,
-                    "action": action,
-                    "reward": reward,
-                    "q_values": list(q_values),
-                })
+                # 在 while 結束後記錄 entropy（代表整輪）
+            q_values = np.array(self.q_table[state])
+            entropy = QLearner.calculate_entropy(q_values)
+            entropy_log.append({
+                "round": ep,
+                "state": str(state),
+                "entropy": entropy,
+                "action": action,
+                "reward": cumulative_reward,
+                "q_values": list(q_values),
+            })
 
 
         self.total_reward = cumulative_reward
