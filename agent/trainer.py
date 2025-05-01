@@ -115,6 +115,8 @@ class QLearner:
             entropy_log.append({
                 "round": ep,
                 "state": str(state),
+                "diff": float(state[0]),  # ⬅️ 拆出並轉 float
+                "rolling_sum_5": float(state[1]),  # ⬅️ 同上
                 "entropy": entropy,
                 "action": action,
                 "reward": cumulative_reward,
