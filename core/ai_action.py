@@ -8,6 +8,9 @@ from data.global_data import Session
 from data.feature_builder import  FeatureBuilder
 from data.global_data import CONFIG
 from data.global_data import DATA_FACADE
+from scipy.special import softmax
+import numpy as np
+
 
 #from data.game_log_loader import load_game_log  # 🆕 我們之後會建立
 #from data.q_table_manager import load_q_table   # 🆕 我們之後會建立
@@ -45,27 +48,91 @@ class AIPredictor:
             q_table.columns = [0, 1]
         self.q_table = q_table
         self.model_name = model_name
-
+        self.entropy_threshold = 0.3  # 可調整參數
+        '''
     def predict(self):
         """回傳 (suggestion:int, state tuple, last5_df)"""
-        df = Session.get('game_log')
+        Session.refresh("game_log")
+        df = Session.get("game_log")
         df = FeatureBuilder.build_features(df)
-
         last5 = df.tail(5)
 
         wine_type, diff, rsum = map(int, last5.iloc[-1][["wine_type", "diff", "rolling_sum_5"]])
+        state = (diff, rsum)
         slice_df = self._safe_slice(diff, rsum)
 
         if slice_df is None or slice_df.empty:
             logging.debug("無對應狀態 (%s, %s)，fallback → 押小車", diff, rsum)
             suggestion = 1
         else:
-            suggestion = _action_by_row_max(slice_df)
+            # ---------- entropy-aware 策略 ----------
+            if isinstance(slice_df, pd.Series):
+                q_values = slice_df.to_numpy()
+            elif isinstance(slice_df, pd.DataFrame):
+                q_values = slice_df.iloc[-1].to_numpy()
+            else:
+                logging.warning(f"[AIPredictor] Q 值格式無法辨識：{type(slice_df)}")
+                q_values = np.array([0.0, 0.0])  # 預設保守
 
-        state = (wine_type, diff, rsum)
-        return suggestion, state, last5
+            entropy = self._calculate_entropy(q_values)
+            logging.info(f"[AIPredictor] Q值：{q_values}, entropy: {entropy:.4f}")
+
+            if entropy > self.entropy_threshold:
+                logging.info(f"高 entropy={entropy:.3f} → 保守策略：押小車")
+                suggestion = 1
+            else:
+                suggestion = _action_by_row_max(slice_df)
+
+        return suggestion, (wine_type, diff, rsum), last5
+
+
+        '''
+    def predict(self):
+        """回傳 (suggestion:int, state tuple, last5_df)"""
+        wine_type, state, last5 = self._prepare_state_from_session()
+        suggestion = self.predict_action(state)
+        return suggestion, (wine_type, *state), last5
+    def _prepare_state_from_session(self):
+        Session.refresh("game_log")
+        df = Session.get("game_log")
+        df = FeatureBuilder.build_features(df)
+        last5 = df.tail(5)
+
+        wine_type, diff, rsum = map(int, last5.iloc[-1][["wine_type", "diff", "rolling_sum_5"]])
+        return wine_type, (diff, rsum), last5
+    def predict_action(self, state: tuple[int, int]) -> int:
+        diff, rsum = state
+        slice_df = self._safe_slice(diff, rsum)
+
+        if slice_df is None or slice_df.empty:
+            logging.debug("無對應狀態 (%s, %s)，fallback → 押小車", diff, rsum)
+            return 1
+
+        if isinstance(slice_df, pd.Series):
+            q_values = slice_df.to_numpy()
+        elif isinstance(slice_df, pd.DataFrame):
+            q_values = slice_df.iloc[-1].to_numpy()
+        else:
+            logging.warning(f"[AIPredictor] Q 值格式無法辨識：{type(slice_df)}")
+            q_values = np.array([0.0, 0.0])
+
+        entropy = self._calculate_entropy(q_values)
+        logging.info(f"[AIPredictor] Q值：{q_values}, entropy: {entropy:.4f}")
+
+        if entropy > self.entropy_threshold:
+            logging.info(f"高 entropy={entropy:.3f} → 保守策略：押小車")
+            return 1
+        else:
+            return _action_by_row_max(slice_df)
+
+
+
+    def _calculate_entropy(self, q_values: list[float]) -> float:
+        probs = softmax(q_values)
+        return -np.sum(probs * np.log(probs + 1e-8))
 
     def _safe_slice(self, diff: int, rsum: int):
+        thresholds = [0.01, 0.05, 0.1, 0.2, 0.3]
         if self.q_table is None or self.q_table.index is None:
             raise RuntimeError("Q 表尚未載入")
 

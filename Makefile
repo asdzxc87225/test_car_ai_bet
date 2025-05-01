@@ -48,7 +48,7 @@ merge:
 train:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  scripts/q_train_legacy.py
 eval:
-	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/evaluate_q_table.py
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/evaluate_q_table.py --model q_model_0501_1324.pkl
 
 gra:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/visualize_q_table.py
