@@ -83,3 +83,4 @@ Thumbs.db
 *.svg
 *.json
 plots/*.png
+data/models/model_log.json
