@@ -1,7 +1,28 @@
 import pytest
 import pandas as pd
 from core.q_table_manager import QTableManager
+import tempfile
+from pathlib import Path
 
+def test_q_table_save_and_load():
+    # 建立暫存資料夾（不影響專案內檔案）
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        file_path = tmp_path / "q_model_0501_1440.pkl"
+
+        # 初始化並儲存 Q 表
+        manager1 = QTableManager()
+        df1 = manager1.init_q_table_from_range(range(2), range(2), 2)
+        manager1.save(file_path)
+
+        # 使用另一個實例讀回
+        manager2 = QTableManager()
+        df2 = manager2.load(file_path)
+
+        # 確認內容一致
+        assert df1.equals(df2)
+        assert manager2.meta["n_actions"] == 2
+        assert manager2.meta["n_states"] == 4
 def test_init_q_table():
     manager = QTableManager()
     states = [(0, 0), (0, 1), (1, 0)]
@@ -88,6 +109,7 @@ if __name__ == "__main__":
     test_from_dict_empty()
     test_multiple_q_tables_with_different_shapes()
     test_from_dict_multiple_variants()
+    test_q_table_save_and_load()
 
     print("✅ 所有測試通過！")
 
