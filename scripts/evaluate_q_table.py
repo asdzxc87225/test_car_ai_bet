@@ -1,75 +1,97 @@
+# scripts/evaluate_q_table.py
+
 import pandas as pd
-import numpy as np
-import pickle
+import matplotlib.pyplot as plt
+from core.ai_action import AIPredictor
+from data.global_data import DATA_FACADE, Session
+import argparse
 from pathlib import Path
 
-ACTIONS = [0, 1]  # 0: 不下注, 1: 下注
-MODEL_PATH = Path("data/models/107140.pkl")
-TEST_PATH = Path("data/train.csv")
 
+def evaluate_q_table(q_table=None):
+    df = DATA_FACADE.game_log()
+    df = DATA_FACADE.build_features(df)
 
-def load_model(path: Path) -> pd.DataFrame:
-    with path.open("rb") as f:
-        return pickle.load(f)
+    if q_table is None:
+        q_table = Session.get("q_table")
 
-
-def choose_action(state, q_table) -> int:
-    if state in q_table.index:
-        return int(q_table.loc[state].idxmax())
-    return 1  # fallback：預設下注小車
-
-
-def evaluate(q_table: pd.DataFrame, test_df: pd.DataFrame) -> dict:
-    test_df = test_df.copy()
-    test_df["action"] = 0
-    test_df["reward"] = 0
-
-    correct = 0
+    predictor = AIPredictor(q_table)
+    rewards = []
+    cumulative_rewards = []
+    actions = []
     total_bets = 0
-    total_reward = 0
+    total_hits = 0
+    x_data, y_data = [], []
 
-    for i in range(len(test_df) - 1):
-        now = test_df.iloc[i]
-        nxt = test_df.iloc[i + 1]
+    for frame in range(5, len(df)):
+        try:
+            diff = int(df.iloc[frame]["diff"])
+            rsum = int(df.iloc[frame]["rolling_sum_5"])
+            wine_type = int(df.iloc[frame]["wine_type"])
+            suggestion = predictor.predict_action((diff, rsum))
+        except Exception as e:
+            print(f"[WARN] Prediction failed at round {frame}: {e}")
+            continue
 
-        state = (int(now["diff"]), int(now["rolling_sum_5"]))
-        action = choose_action(state, q_table)
-        test_df.at[i, "action"] = action
-
-        if action == 1:
-            reward = 20 if nxt["wine_type"] == 1 else -80
-            total_reward += reward
+        if suggestion == 1:
             total_bets += 1
-            if reward > 0:
-                correct += 1
-            test_df.at[i, "reward"] = reward
+            if wine_type == 1:
+                reward = 20
+                total_hits += 1
+            else:
+                reward = -80
+        else:
+            reward = 0
 
-    return {
-        "總樣本數": len(test_df),
-        "下注次數": total_bets,
-        "命中次數": correct,
-        "命中率": correct / total_bets if total_bets else 0,
-        "總報酬": total_reward,
-    }, test_df
+        rewards.append(reward)
+        cumulative_rewards.append(sum(rewards))
+        x_data.append(frame)
+        y_data.append(cumulative_rewards[-1])
+        actions.append(suggestion)
+
+    # 儲存為靜態圖
+    fig, ax = plt.subplots(figsize=(10, 6), dpi=100)
+    ax.plot(x_data, y_data, color='blue')
+    ax.set_title("Cumulative Reward")
+    ax.set_xlabel("Round")
+    ax.set_ylabel("Cumulative Reward")
+    ax.set_xlim(0, len(df))
+    ax.set_ylim(min(y_data) - 50, max(y_data) + 50)
+    Path("plots").mkdir(parents=True, exist_ok=True)
+    plt.savefig("plots/eval_cumulative_reward.png", bbox_inches='tight')
+    print("[INFO] Saved evaluation curve to plots/eval_cumulative_reward.png")
+    plt.close()
+
+    roi = sum(rewards) / total_bets if total_bets else 0
+    hit_rate = total_hits / total_bets if total_bets else 0
+    coverage = total_bets / (len(df) - 5)
+
+    print("\nModel Evaluation Result")
+    print("------------------------")
+    print(f"Total Bets     : {total_bets}")
+    print(f"Total Hits     : {total_hits}")
+    print(f"Hit Rate       : {hit_rate:.2%}")
+    print(f"ROI            : {roi:.2f}")
+    print(f"Coverage       : {coverage:.2%}")
+    print("------------------------")
+
+
+def load_q_table_by_name(model_name):
+    file_path = Path("data/models") / f"{model_name}"
+    if not file_path.exists():
+        raise FileNotFoundError(f"Model not found: {file_path}")
+    return DATA_FACADE.q_table(model_name)
 
 
 if __name__ == "__main__":
-    print("📥 載入模型與測試集...")
-    q_table = load_model(MODEL_PATH)
-    test_df = pd.read_csv(TEST_PATH)
-    print(q_table.index)
-     # 🔧 插入：修正 q_table 索引格式為 MultiIndex
-    if isinstance(q_table.index[0], tuple):
-        q_table.index = pd.MultiIndex.from_tuples(q_table.index, names=["diff", "rolling_sum_5"])
+    parser = argparse.ArgumentParser(description="Evaluate Q-table performance")
+    parser.add_argument("--model", type=str, help="Model filename (without .pkl)")
+    args = parser.parse_args()
 
-    print("🔍 開始驗證...")
-    metrics, result_df = evaluate(q_table, test_df)
+    if args.model:
+        q_table = load_q_table_by_name(args.model)
+    else:
+        q_table = None
 
-    print("\n📊 評估結果：")
-    for k, v in metrics.items():
-        print(f"{k}：{v}")
-
-    # 若需要輸出詳細結果
-    result_df.to_csv("data/eval_result.csv", index=False)
-    print("\n✅ 結果已儲存至 data/eval_result.csv")
+    evaluate_q_table(q_table)
 

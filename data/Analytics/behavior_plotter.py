@@ -109,6 +109,7 @@ def plot_state_reward_heatmap(df: pd.DataFrame) -> Figure:
         matplotlib.figure.Figure
     """
     # 檢查欄位是否存在
+    print(pd)
     for col in ["diff", "rolling_sum_5", "profit"]:
         if col not in df.columns:
             raise ValueError(f"資料中缺少欄位：{col}")

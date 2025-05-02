@@ -48,7 +48,7 @@ merge:
 train:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  scripts/q_train_legacy.py
 eval:
-	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/evaluate_q_table.py
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/evaluate_q_table.py --model q_model_0501_1324.pkl
 
 gra:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/visualize_q_table.py
@@ -56,4 +56,15 @@ mark:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/analyze_transition_matrix.py
 test2:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/test_BehaviorAnalyzer.py
+test_data_facade:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./tests/test_data_facade.py
+test_data_classifier:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./tests/test_data_classifier.py
+test_q_table_manager:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./tests/test_q_table_manager.py
+	PYTHONPATH=$(PYTHONPATH) pytest ./tests/test_q_table_manager.py
+run_data_entropy_plotter:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./data/Analytics/entropy_plotter.py
+run_data_entropy_analyzer:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./data/Analytics/entropy_analyzer.py
 
