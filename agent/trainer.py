@@ -10,7 +10,8 @@ from scipy.special import softmax
 
 
 class QLearner:
-    def __init__(self, epsilon=0.9, alpha=0.1, gamma=0.95):
+    def __init__(self, epsilon=0.9, alpha=0.1, gamma=0.95,n_actions=2):
+        self.n_actions = n_actions
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
@@ -34,25 +35,30 @@ class QLearner:
 
     def _choose_action(self, state):
         if state not in self.q_table:
-            self.q_table[state] = [0.0, 0.0]
-        q_values = self.q_table[state]
-        q_diff = abs(q_values[1] - q_values[0])
-        confidence = min(q_diff, 1.0)
+            self.q_table[state] = [0.0] * self.n_actions
 
-        if np.random.rand() < self.epsilon * (1 - confidence):
-            return np.random.choice([0, 1])
+        q_values = self.q_table[state]
+        if np.random.rand() < self.epsilon:
+            return np.random.choice(range(self.n_actions))
         else:
-            return int(q_values[1] > q_values[0])
+            return int(np.argmax(q_values))
 
     def _update_q_value(self, state, action, reward, next_state):
         if next_state not in self.q_table:
-            self.q_table[next_state] = [0.0, 0.0]
+            self.q_table[next_state] = [0.0] * self.n_actions
         predict = self.q_table[state][action]
         target = reward + self.gamma * max(self.q_table[next_state])
         self.q_table[state][action] += self.alpha * (target - predict)
 
     def _get_reward(self, row, action):
-        return 20 if (action == 1 and row.get('wine_type', 0) == 1) else -20
+        wine_type = row.get('wine_type', 0)
+
+        if action == 1:  # 押小車
+            return 20 if wine_type == 1 else -80
+        elif action == 2:  # 押大車
+            return 120 if wine_type == 0 else -80
+        else:  # 不下注 / 觀望
+            return 0
 
     def train(self, df, episodes=1000, on_step=None, should_abort=None):
         self.aborted = False
