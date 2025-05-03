@@ -1,0 +1,55 @@
+behavior:
+  enabled: true
+  rounds: [0, 300]     # 分析範圍回合數（含頭尾）
+  show_winrate: true
+  show_roi: true
+  show_bet_dist: true
+  show_state_heatmap: false
+
+entropy:
+  enabled: true
+  bin_count: 10
+  show_kde: true
+  save_plot: false
+
+q_table:
+  enabled: true
+  metric: "max_q"      # 可選：max_q, q_gap, strategy_entropy
+  normalize: false
+
+transition:
+  enabled: false
+  use_cache: true
+  visualize: true
+
+metrics:
+  - name: win_rate_by_type
+    type: behavior
+    method: win_rate
+    enabled: true
+
+  - name: bet_distribution
+    type: behavior
+    method: bet_distribution
+    enabled: true
+
+  - name: roi_curve
+    type: behavior
+    method: roi
+    enabled: true
+
+  - name: qtable_max
+    type: q_table
+    method: max_q
+    enabled: true
+
+  - name: transition_entropy
+    type: transition
+    method: entropy
+    enabled: false
+
+plot:
+  output_path: outputs/stats_figures/
+  style: seaborn
+  save_fig: true
+
