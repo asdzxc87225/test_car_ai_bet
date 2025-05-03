@@ -47,6 +47,11 @@ metrics:
     type: transition
     method: entropy
     enabled: false
+  - name: transition_entropy
+    type: transition
+    method: entropy
+    enabled: true
+
 
 plot:
   output_path: outputs/stats_figures/

@@ -1,6 +1,6 @@
 # stats/dispatcher.py
 
-from stats.hooks import behavior_hook, entropy_hook, qtable_hook
+from stats.hooks import behavior_hook, entropy_hook, qtable_hook, transition_hook
 
 # 註冊表：type-method → callable
 DISPATCH_TABLE = {
@@ -11,6 +11,7 @@ DISPATCH_TABLE = {
     ("q_table", "q_gap"): qtable_hook.q_gap,
     ("q_table", "strategy_entropy"): qtable_hook.strategy_entropy,
     ("entropy", "entropy_histogram"): entropy_hook.entropy_histogram,
+    ("transition", "entropy"): transition_hook.transition_entropy,
     # 如有需要再加入其他 hook
 }
 
