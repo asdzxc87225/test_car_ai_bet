@@ -1,8 +1,8 @@
 # tests/test_stats_controller.py
+# tests/test_stats_controller.py
 
 import pytest
 import yaml
-from pathlib import Path
 import pandas as pd
 from stats.stats_controller import StatsController
 from stats.dispatcher import get_callable, DISPATCH_TABLE
@@ -38,41 +38,53 @@ def test_summary_output(tmp_config_file):
     summary = controller.summary()
     assert "- win_rate_by_type" in summary
 
-def test_run_all_enabled_metrics(monkeypatch, tmp_config_file):
+def test_run_all_enabled_metrics_basic(monkeypatch, tmp_config_file):
     controller = StatsController(config_path=tmp_config_file)
     dummy_df = {}
 
     # 模擬 hook 函式
     called = []
+
     def fake_callable(df):
         called.append("triggered")
+        return {
+            "data": {"sample": 1},
+            "fig": None,
+            "meta": {"status": "ok", "msg": "done"}
+        }
 
     # 注入假 callable
     monkeypatch.setitem(DISPATCH_TABLE, ("behavior", "win_rate"), fake_callable)
 
-    controller.run_all_enabled_metrics(dummy_df)
+    results = controller.run_all_enabled_metrics(dummy_df)
     assert called, "run_all_enabled_metrics 未正確執行 hook"
+    assert isinstance(results, list)
+    assert results[0]["meta"]["status"] == "ok"
 
 def test_dispatcher_missing_callable_raises():
     with pytest.raises(ValueError):
         get_callable("nonexistent", "no_method")
 
-def test_run_all_enabled_metrics(monkeypatch, tmp_config_file):
-    from stats.stats_controller import StatsController
-
+def test_run_all_enabled_metrics_result_structure(monkeypatch, tmp_config_file):
     called = []
 
     def mock_fn(df):
         called.append("called")
-        return None
+        return {
+            "data": {"mocked": True},
+            "fig": None,
+            "meta": {"status": "ok", "msg": "mock success"}
+        }
 
-    # monkeypatch dispatcher 註冊表
-    from stats import dispatcher
-    monkeypatch.setitem(dispatcher.DISPATCH_TABLE, ("behavior", "win_rate"), mock_fn)
+    monkeypatch.setitem(DISPATCH_TABLE, ("behavior", "win_rate"), mock_fn)
 
     controller = StatsController(config_path=tmp_config_file)
-    df = pd.DataFrame({"dummy": [1, 2, 3]})  # 模擬資料
-    controller.run_all_enabled_metrics(df)
+    df = pd.DataFrame({"dummy": [1, 2, 3]})
+    results = controller.run_all_enabled_metrics(df)
 
     assert "called" in called
+    assert isinstance(results, list)
+    assert "result" in results[0]
+    assert results[0]["result"] == {"mocked": True}
+    assert results[0]["meta"]["status"] == "ok"
 
