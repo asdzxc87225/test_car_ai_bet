@@ -69,4 +69,6 @@ run_data_entropy_analyzer:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./data/Analytics/entropy_analyzer.py
 generate_dependency_graph:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/generate_dependency_graph.py
+test_:
+	PYTHONPATH=$(PYTHONPATH) pytest  tests/
 
