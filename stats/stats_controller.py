@@ -2,6 +2,7 @@
 
 import yaml
 from pathlib import Path
+from stats.dispatcher import get_callable
 
 class StatsController:
     def __init__(self, config_path="configs/stats.yaml"):
@@ -17,8 +18,7 @@ class StatsController:
     def get_metrics_by_type(self, mtype: str):
         """取得指定類型（如 'behavior'）的啟用任務"""
         return [m for m in self.config.get("metrics", []) if m.get("type") == mtype and m.get("enabled", False)]
-    def run_all_enabled_metrics(self):
-        """跑所有啟用的分析指令（可串接 plot 模組）"""
+    def run_all_enabled_metrics(self, df):
         for metric in self.config.get("metrics", []):
             if not metric.get("enabled", False):
                 continue
@@ -26,7 +26,8 @@ class StatsController:
             method = metric["method"]
             name = metric["name"]
             print(f"[INFO] 執行分析：{name}（type: {mtype}, method: {method}）")
-            # 此處將對應到模組呼叫（未來支援 plugin 或 dispatch map）
+            fn = get_callable(mtype, method)
+            fn(df)  # 傳入假資料即可測試
     def summary(self):
         lines = []
         for metric in self.get_available_metrics():
