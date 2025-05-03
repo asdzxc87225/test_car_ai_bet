@@ -19,6 +19,8 @@ from data.global_data import Session
 class BehaviorTab(QWidget):
     def __init__(self):
         super().__init__()
+        self.stats_controller = StatsController()
+
 
         # 資料設定區塊
         self.data_group = QGroupBox("資料設定")
@@ -101,10 +103,11 @@ class BehaviorTab(QWidget):
             df = df[(df["round"] >= start) & (df["round"] <= (end if end > 0 else df["round"].max()))]
 
         try:
-            result = StatsController.run_by_name(metric_name, df)
+            result = self.stats_controller.run_by_name(metric_name, df)
             return result.get("fig"), result.get("meta", {})
         except Exception as e:
             return None, {"status": "error", "msg": str(e)}
+
 
     def plot_win_rate(self):
         self.ax.clear()
