@@ -7,22 +7,27 @@ from pathlib import Path
 import random
 import pandas as pd
 from scipy.special import softmax
+from core.training_strategy import TrainingStrategy, TwoActionStrategy  # 新增
+
 
 
 class QLearner:
-    def __init__(self, epsilon=0.9, alpha=0.1, gamma=0.95,n_actions=2):
-        self.n_actions = n_actions
+    def __init__(self, epsilon=0.9, alpha=0.1, gamma=0.95, strategy: TrainingStrategy = None):
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
-        self.q_table = {}  # key = state, value = [Q(0), Q(1)]
+        self.strategy = strategy or TwoActionStrategy()  # ✅ 預設策略
 
-        # 訓練紀錄
+        self.n_actions = self.strategy.n_actions
+        self.q_table = {}  # key = state, value = [Q(0), Q(1), ...]
+
+        # 統計紀錄
         self.total_reward = 0
         self.max_drawdown = 0
         self.roi = 0.0
         self.hit_rate = 0.0
-        self.aborted = False  # 🔥 重要：記錄是否中止
+        self.aborted = False
+
 
     def _get_state(self, row):
         return (row.get('diff', 0), row.get('rolling_sum_5', 0))
@@ -36,12 +41,8 @@ class QLearner:
     def _choose_action(self, state):
         if state not in self.q_table:
             self.q_table[state] = [0.0] * self.n_actions
-
         q_values = self.q_table[state]
-        if np.random.rand() < self.epsilon:
-            return np.random.choice(range(self.n_actions))
-        else:
-            return int(np.argmax(q_values))
+        return self.strategy.choose_action(state, q_values, self.epsilon)
 
     def _update_q_value(self, state, action, reward, next_state):
         if next_state not in self.q_table:
@@ -51,15 +52,7 @@ class QLearner:
         self.q_table[state][action] += self.alpha * (target - predict)
 
     def _get_reward(self, row, action):
-        wine_type = row.get('wine_type', 0)
-
-        if action == 1:  # 押小車
-            return 20 if wine_type == 1 else -80
-        elif action == 2:  # 押大車
-            return 120 if wine_type == 0 else -80
-        else:  # 不下注 / 觀望
-            return 0
-
+         return self.strategy.compute_reward(row, action)
     def train(self, df, episodes=1000, on_step=None, should_abort=None):
         self.aborted = False
         entropy_log = []

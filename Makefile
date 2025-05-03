@@ -67,4 +67,6 @@ run_data_entropy_plotter:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./data/Analytics/entropy_plotter.py
 run_data_entropy_analyzer:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./data/Analytics/entropy_analyzer.py
+generate_dependency_graph:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON)  ./scripts/generate_dependency_graph.py
 
