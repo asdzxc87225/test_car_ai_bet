@@ -1,0 +1,2 @@
+bet_format: dict        # 可設為 list, stringified_dict 等
+

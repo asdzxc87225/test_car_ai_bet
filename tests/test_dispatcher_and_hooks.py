@@ -26,7 +26,7 @@ def test_qtable_hooks_callable():
 
 def test_entropy_hook_callable():
     dummy_df = pd.DataFrame({"entropy": [0.1, 0.5, 0.9]})
-    fn = get_callable("entropy", "entropy_histogram")
+    fn = get_callable("entropy", "histogram")
     assert callable(fn)
     assert fn(dummy_df) is None
 

@@ -51,6 +51,10 @@ metrics:
     type: transition
     method: entropy
     enabled: true
+  - name: state_heatmap
+    type: behavior
+    method: state_heatmap
+    enabled: true
 
 
 plot:

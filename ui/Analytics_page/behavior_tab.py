@@ -58,13 +58,13 @@ class BehaviorTab(QWidget):
 
         # 圖表顯示區
         self.chart_group = QGroupBox("分析結果")
-        chart_layout = QVBoxLayout()
+        self.chart_layout = QVBoxLayout()
         self.canvas = FigureCanvas(Figure(figsize=(6, 4)))
         self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.canvas.setMinimumHeight(350)
         self.ax = self.canvas.figure.add_subplot(111)
-        chart_layout.addWidget(self.canvas)
-        self.chart_group.setLayout(chart_layout)
+        self.chart_layout.addWidget(self.canvas)
+        self.chart_group.setLayout(self.chart_layout)
 
         # 組合整體畫面
         main_layout = QVBoxLayout()
