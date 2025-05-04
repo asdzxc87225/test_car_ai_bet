@@ -1,6 +1,7 @@
 # data/global_data.py
 from data.data_facade import DataFacade
 from data.config_loader import load_config
+from core.q_table_manager import QTableManager
 from pathlib import Path
 
 DATA_FACADE = DataFacade(Path("./data"))

@@ -1,0 +1,16 @@
+# tests/test_ui/test_main_entry.py
+import sys
+import pytest
+from PySide6.QtWidgets import QApplication
+
+# 若在無 GUI 環境下，跳過測試
+@pytest.mark.skipif(
+    not hasattr(sys, "getwindowsversion") and "linux" in sys.platform,
+    reason="CI 或無 GUI 環境下無法啟動 Qt"
+)
+def test_main_window_launches():
+    from main import MainWindow
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+    window.show()
+

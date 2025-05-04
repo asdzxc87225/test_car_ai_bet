@@ -1,5 +1,5 @@
 # core/q_trainer.py
-
+from core.training_strategy import TwoActionStrategy  # ⬅️ 補上 import
 from pathlib import Path
 from agent.trainer import QLearner
 import threading
@@ -32,7 +32,13 @@ def train_model(model_name, episodes, epsilon, alpha, gamma, on_step=None, shoul
     df_features = df_features.dropna(subset=["diff", "rolling_sum_5"])
 
     # 2️⃣ 建立 QLearner
-    learner = QLearner(epsilon=epsilon, alpha=alpha, gamma=gamma)
+    learner = QLearner(
+        epsilon=epsilon,
+        alpha=alpha,
+        gamma=gamma,
+        strategy=TwoActionStrategy(),  # ✅ 注入預設策略
+        )
+
 
     # 3️⃣ 開始訓練（支援進度回報與中止）
     learner.train(df_features, episodes=episodes, on_step=on_step, should_abort=should_abort)
